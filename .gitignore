@@ -52,3 +52,9 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+
+fashion_shop.Deployment/minio
+fashion_shop.Deployment/postgres
+fashion_shop.Deployment/redis
+
+.env
