@@ -28,6 +28,18 @@ Drop Database
 dotnet ef database drop --project fashion_shop.Infrastructure --startup-project fashion_shop.API
 ```
 
+Seed User
+
+```sh
+dotnet run --project fashion_shop.API -- --seed-user
+```
+
+Seed Product
+
+```sh
+dotnet run --project fashion_shop.API -- --seed-product
+```
+
 ### Port and database docker
 
 |  No  | Name | Port | Type |
