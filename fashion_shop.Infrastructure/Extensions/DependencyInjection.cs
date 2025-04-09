@@ -35,6 +35,8 @@ namespace fashion_shop.Infrastructure.Extensions
                 .UseNpgsql(connectionString)
                 .UseSnakeCaseNamingConvention());
 
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+
             return services;
         }
     }

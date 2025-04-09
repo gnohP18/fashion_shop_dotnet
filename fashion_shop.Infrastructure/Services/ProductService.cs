@@ -11,15 +11,18 @@ namespace fashion_shop.Infrastructure.Services
     public class ProductService : IProductService
     {
         private readonly IProductRepository _productRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public ProductService(IProductRepository productRepository)
+        public ProductService(IProductRepository productRepository, IUnitOfWork unitOfWork)
         {
-            _productRepository = productRepository;
+            _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
+            _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork)); ;
         }
 
         public async Task AddAsync(Product product)
         {
             await _productRepository.AddAsync(product);
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }

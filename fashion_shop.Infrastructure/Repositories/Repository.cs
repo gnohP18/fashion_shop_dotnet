@@ -9,6 +9,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace fashion_shop.Infrastructure.Repositories;
 
+/// <summary>
+/// After implement UnitOfWork, We don't saveChange in Repository
+/// </summary>
+/// <typeparam name="T">Generic Class</typeparam>
 public class Repository<T> : IRepository<T> where T : class
 {
     protected readonly ApplicationDbContext _dbContext;
@@ -43,13 +47,11 @@ public class Repository<T> : IRepository<T> where T : class
     public async Task AddAsync(T entity, CancellationToken cancellationToken = default)
     {
         await _dbSet.AddAsync(entity, cancellationToken);
-        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
     public async Task UpdateAsync(T entity, CancellationToken cancellationToken = default)
     {
         _dbSet.Update(entity);
-        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
     public async Task DeleteByIdAsync(int id, CancellationToken cancellationToken = default)
@@ -58,7 +60,6 @@ public class Repository<T> : IRepository<T> where T : class
         if (entity != null)
         {
             _dbSet.Remove(entity);
-            await _dbContext.SaveChangesAsync(cancellationToken);
         }
     }
 
@@ -66,6 +67,5 @@ public class Repository<T> : IRepository<T> where T : class
     {
         var entities = await _dbSet.Where(e => ids.Contains(EF.Property<int>(e, "Id"))).ToListAsync(cancellationToken);
         _dbSet.RemoveRange(entities);
-        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 }
