@@ -1,13 +1,42 @@
+using fashion_shop.API.ProfileMapper;
+using fashion_shop.API.Seeders;
+using fashion_shop.Core.Entities;
+using fashion_shop.Infrastructure.Database;
+using fashion_shop.Infrastructure.Extensions;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+
+
 var builder = WebApplication.CreateBuilder(args);
+var services = builder.Services;
+services.AddEndpointsApiExplorer();
+services.AddSwaggerGen();
+services.AddInfrastructure(builder.Configuration);
+services.AddServices();
+services.AddRepositories();
+services.AddAutoMapper(typeof(Program));
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-
+services.AddIdentity<User, Role>()
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
 
 var app = builder.Build();
+
+if (args.Contains("--seed-user"))
+{
+    using var scope = app.Services.CreateScope();
+    await UserRoleSeeder.Seed(scope);
+
+    return;
+}
+
+if (args.Contains("--seed-product"))
+{
+    using var scope = app.Services.CreateScope();
+    await ProductCategorySeeder.Seed(scope);
+
+    return;
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -25,7 +54,7 @@ var summaries = new[]
 
 app.MapGet("/weatherforecast", () =>
 {
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
+    var forecast = Enumerable.Range(1, 5).Select(index =>
         new WeatherForecast
         (
             DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
