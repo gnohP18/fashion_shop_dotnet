@@ -12,14 +12,17 @@ namespace fashion_shop.Infrastructure.Services;
 public class CategoryService : ICategoryService
 {
     private readonly ICategoryRepository _categoryRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public CategoryService(ICategoryRepository categoryRepository)
+    public CategoryService(ICategoryRepository categoryRepository, IUnitOfWork unitOfWork)
     {
-        _categoryRepository = categoryRepository;
+        _categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
+        _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
     }
 
     public async Task AddAsync(Category category)
     {
         await _categoryRepository.AddAsync(category);
+        await _unitOfWork.SaveChangesAsync();
     }
 }
