@@ -30,11 +30,11 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, int>
         builder.Entity<IdentityRoleClaim<int>>().ToTable("role_claims");
         builder.Entity<IdentityUserToken<int>>().ToTable("user_tokens");
 
-        // Apply configurations
-        builder.ApplyConfiguration(new ProductConfiguration());
-        builder.ApplyConfiguration(new CategoryConfiguration());
+        // Apply configurations ...
+        // builder.ApplyConfiguration(new ProductConfiguration());
+        // builder.ApplyConfiguration(new CategoryConfiguration());
 
-        // builder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+        builder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
 
     }
 }

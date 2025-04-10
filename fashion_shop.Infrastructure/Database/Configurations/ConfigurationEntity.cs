@@ -14,12 +14,16 @@ public abstract class ConfigurationEntity<T> : IEntityTypeConfiguration<T> where
     {
         builder.HasKey(e => e.Id);
 
+        builder.Property(e => e.Id).HasColumnName("id");
+
         builder.Property(e => e.CreatedAt)
-               .HasDefaultValueSql("CURRENT_TIMESTAMP")
-               .ValueGeneratedOnAdd();
+            .HasColumnName("created_at")
+            .HasDefaultValueSql("CURRENT_TIMESTAMP")
+            .ValueGeneratedOnAdd();
 
         builder.Property(e => e.UpdatedAt)
-               .ValueGeneratedOnUpdate()
-               .IsRequired(false);
+            .HasColumnName("updated_at")
+            .ValueGeneratedOnUpdate()
+            .IsRequired(false);
     }
 }
