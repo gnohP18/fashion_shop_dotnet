@@ -46,7 +46,7 @@ public static class UserRoleSeeder
                     Email = email
                 };
 
-                var result = await userManager.CreateAsync(newUser, "Password123!");
+                var result = await userManager.CreateAsync(newUser, "180402");
                 if (result.Succeeded)
                 {
                     await userManager.AddToRoleAsync(newUser, role);

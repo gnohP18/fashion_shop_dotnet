@@ -6,6 +6,7 @@ using fashion_shop.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using StackExchange.Redis;
 
 namespace fashion_shop.Infrastructure.Extensions
 {
@@ -15,6 +16,8 @@ namespace fashion_shop.Infrastructure.Extensions
         {
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<IAdminAuthService, AdminAuthService>();
+            services.AddSingleton<ITokenService, TokenService>();
 
             return services;
         }
@@ -23,6 +26,7 @@ namespace fashion_shop.Infrastructure.Extensions
         {
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
 
             return services;
         }
@@ -34,6 +38,10 @@ namespace fashion_shop.Infrastructure.Extensions
             services.AddDbContext<ApplicationDbContext>(options => options
                 .UseNpgsql(connectionString)
                 .UseSnakeCaseNamingConvention());
+
+            var redisConnectionString = configuration.GetConnectionString("RedisConnection");
+
+            services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConnectionString));
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 

@@ -1,25 +1,43 @@
-using fashion_shop.API.ProfileMapper;
 using fashion_shop.API.Seeders;
+using fashion_shop.Core.DTOs.Common;
 using fashion_shop.Core.Entities;
 using fashion_shop.Infrastructure.Database;
 using fashion_shop.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-
+using SampleDotNet.Api.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
+
 services.AddEndpointsApiExplorer();
 services.AddSwaggerGen();
+services.AddControllers().AddJsonOptions(options => { options.JsonSerializerOptions.IgnoreReadOnlyFields = true; });
+;
+
+//------------------------------ Service & Repo & Infra ----------------------------------//
 services.AddInfrastructure(builder.Configuration);
 services.AddServices();
 services.AddRepositories();
-services.AddAutoMapper(typeof(Program));
 
-services.AddIdentity<User, Role>()
+//------------------------------ Mapper ------------------------------------------//
+services.AddAutoMapper(typeof(Program));
+services.AddHttpContextAccessor();
+
+//------------------------------ Identity & Token Settings ----------------------------------//
+services.Configure<TokenSettings>(builder.Configuration.GetSection("TokenSettings"));
+services.AddIdentity<User, Role>(options =>
+    {
+        options.Password.RequireDigit = false;
+        options.Password.RequireLowercase = false;
+        options.Password.RequireUppercase = false;
+        options.Password.RequireNonAlphanumeric = false;
+        options.Password.RequiredLength = 4;
+    })
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
+//------------------------------ CLI & Seeder ----------------------------------//
 var app = builder.Build();
 
 if (args.Contains("--seed-user"))
@@ -46,30 +64,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast")
-.WithOpenApi();
-
+app.UseRegisterMiddleware();
+app.MapControllers();
 app.Run();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

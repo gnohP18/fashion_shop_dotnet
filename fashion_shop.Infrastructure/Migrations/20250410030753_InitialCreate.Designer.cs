@@ -12,7 +12,7 @@ using fashion_shop.Infrastructure.Database;
 namespace fashion_shop.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250409095822_InitialCreate")]
+    [Migration("20250410030753_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -206,12 +206,14 @@ namespace fashion_shop.Infrastructure.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<string>("Note")
-                        .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
                         .HasColumnName("note");
 
                     b.Property<int>("TotalAmount")
@@ -219,6 +221,7 @@ namespace fashion_shop.Infrastructure.Migrations
                         .HasColumnName("total_amount");
 
                     b.Property<DateTimeOffset?>("UpdatedAt")
+                        .ValueGeneratedOnUpdate()
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
@@ -245,8 +248,10 @@ namespace fashion_shop.Infrastructure.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<int>("OrderId")
                         .HasColumnType("integer")
@@ -262,7 +267,8 @@ namespace fashion_shop.Infrastructure.Migrations
 
                     b.Property<string>("ProductName")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
                         .HasColumnName("product_name");
 
                     b.Property<int>("Quantity")
@@ -270,6 +276,7 @@ namespace fashion_shop.Infrastructure.Migrations
                         .HasColumnName("quantity");
 
                     b.Property<DateTimeOffset?>("UpdatedAt")
+                        .ValueGeneratedOnUpdate()
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
