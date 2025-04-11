@@ -9,6 +9,6 @@ namespace fashion_shop.Core.DTOs.Requests.Admin
     public class AdminRefreshLoginRequest
     {
         [Required(ErrorMessage = "Refresh Token is required")]
-        public string RefreshToken { get; set; } = String.Empty;
+        public string RefreshToken { get; set; } = default!;
     }
 }

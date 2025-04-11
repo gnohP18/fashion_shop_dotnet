@@ -12,7 +12,7 @@ using fashion_shop.Infrastructure.Database;
 namespace fashion_shop.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250410030753_InitialCreate")]
+    [Migration("20250410184129_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -329,9 +329,8 @@ namespace fashion_shop.Infrastructure.Migrations
                         .HasColumnType("character varying(255)")
                         .HasColumnName("name");
 
-                    b.Property<string>("Price")
-                        .IsRequired()
-                        .HasColumnType("text")
+                    b.Property<int>("Price")
+                        .HasColumnType("integer")
                         .HasColumnName("price");
 
                     b.Property<string>("Slug")

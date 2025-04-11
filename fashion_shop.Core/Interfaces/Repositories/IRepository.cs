@@ -69,4 +69,8 @@ public interface IRepository<T> where T : class
     /// <param name="ids">A collection of IDs to delete.</param>
     /// <param name="cancellationToken">Optional cancellation token.</param>
     Task DeleteByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default);
+
+    IQueryable<T> GetAllQueryable();
+
+    IUnitOfWork UnitOfWork { get; }
 }

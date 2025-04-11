@@ -1,14 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using fashion_shop.Core.DTOs.Requests.Admin;
-using fashion_shop.Core.Entities;
+using fashion_shop.Core.DTOs.Responses;
+using fashion_shop.Core.DTOs.Responses.Admin;
 
-namespace fashion_shop.Core.Interfaces.Services
+
+namespace fashion_shop.Core.Interfaces.Services;
+
+public interface ICategoryService
 {
-    public interface ICategoryService
-    {
-        Task AddAsync(Category category);
-    }
+    Task<PaginationData<CategoryDto>> GetListAsync(GetCategoryRequest request);
+    Task<CreateCategoryResponse> CreateAsync(CreateCategoryRequest request);
+    Task DeleteAsync(int id);
 }

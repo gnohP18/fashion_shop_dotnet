@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fashion_shop.MVC", "fashion
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fashion_shop.Infrastructure", "fashion_shop.Infrastructure\fashion_shop.Infrastructure.csproj", "{C2A81B88-C8D9-40B9-B652-0BCC799EBE2F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fashion_shop.Test", "fashion_shop.Test\fashion_shop.Test.csproj", "{EF063894-4F12-48B7-9F99-26847CBBD211}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{C2A81B88-C8D9-40B9-B652-0BCC799EBE2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C2A81B88-C8D9-40B9-B652-0BCC799EBE2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C2A81B88-C8D9-40B9-B652-0BCC799EBE2F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EF063894-4F12-48B7-9F99-26847CBBD211}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF063894-4F12-48B7-9F99-26847CBBD211}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF063894-4F12-48B7-9F99-26847CBBD211}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF063894-4F12-48B7-9F99-26847CBBD211}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

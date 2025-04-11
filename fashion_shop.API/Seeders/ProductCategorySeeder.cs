@@ -1,3 +1,4 @@
+using AutoMapper;
 using fashion_shop.Core.DTOs.Requests.Admin;
 using fashion_shop.Core.Entities;
 using fashion_shop.Core.Interfaces.Services;
@@ -10,28 +11,28 @@ public static class ProductCategorySeeder
         var serviceCategory = scope.ServiceProvider.GetRequiredService<ICategoryService>();
         var serviceProduct = scope.ServiceProvider.GetRequiredService<IProductService>();
 
-        var tshirtCategory = new Category { Name = "T-Shirt", Slug = "t-shirt" };
-        var hatCategory = new Category { Name = "Hat", Slug = "hat" };
+        // var tshirtCategory = new CreateCategoryRequest { Name = "T-Shirt", Slug = "t-shirt" };
+        // var hatCategory = new CreateCategoryRequest { Name = "Hat", Slug = "hat" };
 
-        await serviceCategory.AddAsync(tshirtCategory);
-        await serviceCategory.AddAsync(hatCategory);
+        // var res1 = await serviceCategory.CreateAsync(tshirtCategory);
+        // var res2 = await serviceCategory.CreateAsync(hatCategory);
 
         // Seed Products
-        var tshirtProducts = new List<Product>
+        var tshirtProducts = new List<CreateProductRequest>
         {
-            new Product { Name = "Classic Tee", Slug = "classic-tee", Price = "19.99", ImageUrl = "classic.jpg", Description = "A classic t-shirt", Category = tshirtCategory },
-            new Product { Name = "Graphic Tee", Slug = "graphic-tee", Price = "24.99", ImageUrl = "graphic.jpg", Description = "A graphic t-shirt", Category = tshirtCategory }
+            new CreateProductRequest { Name = "Classic Tee", Slug = "classic-tee", Price = 400000, ImageUrl = "classic.jpg", Description = "A classic t-shirt", CategoryId = 1 },
+            new CreateProductRequest { Name = "Graphic Tee", Slug = "graphic-tee", Price = 203000, ImageUrl = "graphic.jpg", Description = "A graphic t-shirt", CategoryId = 1 }
         };
 
-        var hatProducts = new List<Product>
+        var hatProducts = new List<CreateProductRequest>
         {
-            new Product { Name = "Baseball Cap", Slug = "baseball-cap", Price = "14.99", ImageUrl = "cap.jpg", Description = "A cool cap", Category = hatCategory },
-            new Product { Name = "Beanie", Slug = "beanie", Price = "18.99", ImageUrl = "beanie.jpg", Description = "A warm beanie", Category = hatCategory }
+            new CreateProductRequest { Name = "Baseball Cap", Slug = "baseball-cap", Price = 245000, ImageUrl = "cap.jpg", Description = "A cool cap", CategoryId = 2},
+            new CreateProductRequest { Name = "Beanie", Slug = "beanie", Price = 210000, ImageUrl = "beanie.jpg", Description = "A warm beanie", CategoryId = 2 }
         };
 
         foreach (var product in tshirtProducts.Concat(hatProducts))
         {
-            await serviceProduct.AddAsync(product);
+            await serviceProduct.CreateAsync(product);
         }
     }
 }

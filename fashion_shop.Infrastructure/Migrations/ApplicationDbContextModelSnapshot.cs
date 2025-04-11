@@ -326,9 +326,8 @@ namespace fashion_shop.Infrastructure.Migrations
                         .HasColumnType("character varying(255)")
                         .HasColumnName("name");
 
-                    b.Property<string>("Price")
-                        .IsRequired()
-                        .HasColumnType("text")
+                    b.Property<int>("Price")
+                        .HasColumnType("integer")
                         .HasColumnName("price");
 
                     b.Property<string>("Slug")

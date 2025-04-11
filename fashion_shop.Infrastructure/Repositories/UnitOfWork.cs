@@ -13,7 +13,7 @@ namespace fashion_shop.Infrastructure.Repositories
 
         public UnitOfWork(ApplicationDbContext context)
         {
-            _context = context;
+            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         public void Dispose()

@@ -5,9 +5,8 @@ using System.Threading.Tasks;
 
 namespace fashion_shop.Core.DTOs.Requests.Admin
 {
-    public class CreateCategoryRequest
+    public class GetProductRequest : QueryRequest
     {
-        public string Name { get; set; } = default!;
-        public string Slug { get; set; } = default!;
+        public string? KeySearch { get; set; }
     }
 }
