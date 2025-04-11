@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using fashion_shop.API.Seeders;
 using fashion_shop.Core.DTOs.Common;
 using fashion_shop.Core.Entities;
@@ -12,8 +13,12 @@ var services = builder.Services;
 
 services.AddEndpointsApiExplorer();
 services.AddSwaggerGen();
-services.AddControllers().AddJsonOptions(options => { options.JsonSerializerOptions.IgnoreReadOnlyFields = true; });
-;
+services.AddControllers().AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.IgnoreReadOnlyFields = true;
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    }
+);
 
 //------------------------------ Service & Repo & Infra ----------------------------------//
 services.AddInfrastructure(builder.Configuration);
@@ -21,7 +26,7 @@ services.AddServices();
 services.AddRepositories();
 
 //------------------------------ Mapper ------------------------------------------//
-services.AddAutoMapper(typeof(Program));
+services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 services.AddHttpContextAccessor();
 
 //------------------------------ Identity & Token Settings ----------------------------------//

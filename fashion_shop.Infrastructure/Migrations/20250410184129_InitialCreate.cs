@@ -77,7 +77,7 @@ namespace fashion_shop.Infrastructure.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     slug = table.Column<string>(type: "character varying(400)", maxLength: 400, nullable: false),
-                    price = table.Column<string>(type: "text", nullable: false),
+                    price = table.Column<int>(type: "integer", nullable: false),
                     image_url = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     description = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
                     category_id = table.Column<int>(type: "integer", nullable: false),

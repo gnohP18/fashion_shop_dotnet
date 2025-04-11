@@ -24,6 +24,8 @@ public class Repository<T> : IRepository<T> where T : class
         _dbSet = dbContext.Set<T>();
     }
 
+    public IUnitOfWork UnitOfWork => _dbContext;
+
     public async Task<T?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         return await _dbSet.FindAsync(id, cancellationToken);
@@ -52,6 +54,7 @@ public class Repository<T> : IRepository<T> where T : class
     public async Task UpdateAsync(T entity, CancellationToken cancellationToken = default)
     {
         _dbSet.Update(entity);
+        await Task.CompletedTask;
     }
 
     public async Task DeleteByIdAsync(int id, CancellationToken cancellationToken = default)
@@ -67,5 +70,10 @@ public class Repository<T> : IRepository<T> where T : class
     {
         var entities = await _dbSet.Where(e => ids.Contains(EF.Property<int>(e, "Id"))).ToListAsync(cancellationToken);
         _dbSet.RemoveRange(entities);
+    }
+
+    public IQueryable<T> GetAllQueryable()
+    {
+        return _dbSet.AsNoTracking();
     }
 }

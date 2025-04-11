@@ -1,13 +1,15 @@
 using fashion_shop.Core.Entities;
+using fashion_shop.Core.Interfaces.Repositories;
 using fashion_shop.Infrastructure.Database.Configurations.Entities;
 using fashion_shop.Infrastructure.Database.EntityConfiguration;
+using fashion_shop.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace fashion_shop.Infrastructure.Database;
 
-public class ApplicationDbContext : IdentityDbContext<User, Role, int>
+public class ApplicationDbContext : IdentityDbContext<User, Role, int>, IUnitOfWork
 {
     public ApplicationDbContext(DbContextOptions options) : base(options)
     {

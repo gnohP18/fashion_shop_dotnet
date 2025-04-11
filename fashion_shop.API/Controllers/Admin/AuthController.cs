@@ -20,13 +20,17 @@ namespace fashion_shop.API.Controllers.Admin
     [ApiController]
     [Tags("Authentication")]
     [Route("api/admin/auth")]
-    public class AuthController : ControllerBase
+    public class AuthController : APIController<AuthController>
     {
         private readonly IAdminAuthService _adminAuthService;
         private readonly ITokenService _tokenService;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public AuthController(IAdminAuthService adminAuthService, IHttpContextAccessor httpContextAccessor, ITokenService tokenService)
+        public AuthController(
+            IAdminAuthService adminAuthService,
+            IHttpContextAccessor httpContextAccessor,
+            ITokenService tokenService,
+            ILogger<AuthController> logger) : base(logger)
         {
             _adminAuthService = adminAuthService ?? throw new ArgumentNullException(nameof(adminAuthService));
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
@@ -36,6 +40,11 @@ namespace fashion_shop.API.Controllers.Admin
         [HttpPost("login")]
         public async Task<BaseResponse<AdminLoginResponse>> Login([FromBody] AdminLoginRequest request)
         {
+            if (!ModelState.IsValid)
+            {
+                return HandleInvalidModel<AdminLoginResponse>();
+            }
+
             var data = await _adminAuthService.LoginAsync(request);
 
             return new BaseResponse<AdminLoginResponse>()
@@ -75,6 +84,11 @@ namespace fashion_shop.API.Controllers.Admin
         [HttpPost("refresh")]
         public async Task<BaseResponse<AdminLoginResponse>> Refresh([FromBody] AdminRefreshLoginRequest request)
         {
+            if (!ModelState.IsValid)
+            {
+                return HandleInvalidModel<AdminLoginResponse>();
+            }
+
             var data = await _adminAuthService.RefreshLoginAsync(request);
 
             return new BaseResponse<AdminLoginResponse>()
