@@ -1,0 +1,81 @@
+version: "3"
+
+services:
+  api:
+    container_name: ${PROJECT_NAME}_api
+    build:
+      context: .
+      dockerfile: ./${PROJECT_NAME}.API/Dockerfile
+    volumes:
+      - ./${PROJECT_NAME}.API/appsettings.Development.json:/app/appsettings.Development.json:ro
+    restart: unless-stopped
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - 8123:8123
+
+  mvc: 
+    container_name: ${PROJECT_NAME}_mvc
+    build:
+      dockerfile: ./${PROJECT_NAME}.MVC/Dockerfile
+    ports:
+      - "5123:5123"
+    restart: unless-stopped
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+
+  # nginx:
+  #   image: nginx
+  #   container_name: nginx
+  #   volumes:
+  #     - ./${PROJECT_NAME}.Deployment/nginx/default.conf:/etc/nginx/conf.d/default.conf
+  #     - .:/var/www/html
+  #   ports:
+  #     - 80:80
+  #     # - "443:443"
+  #   restart: unless-stopped
+
+  database:
+    image: postgres:16
+    container_name: ${PROJECT_NAME}_postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - ./${PROJECT_NAME}.Deployment/postgres/.data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:latest
+    container_name: ${PROJECT_NAME}_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./${PROJECT_NAME}.Deployment/redis/.data/db:/root/redis
+      - ./${PROJECT_NAME}.Deployment/redis/redis.conf:/usr/local/etc/redis/redis.conf
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_DATABASES=${REDIS_DATABASES}
+
+  minio:
+    image: minio/minio:latest
+    container_name: ${PROJECT_NAME}_minio
+    restart: unless-stopped
+    ports:
+      - "9000:9000"     # S3 API
+      - "9001:9001"     # Console
+    volumes:
+      - ./${PROJECT_NAME}.Deployment/minio/data:/data
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    command: server /data --console-address ":9001"
+
+networks:
+  docker-network:
+    driver: bridge
