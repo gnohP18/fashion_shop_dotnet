@@ -12,9 +12,9 @@ public class BaseResponse<T> where T : class
     public string Message { get; set; } = null!;
     public T Data { get; set; } = null!;
 
-    public object Errors { get; set; }
+    public object? Errors { get; set; }
 
-    public object Meta { get; set; }
+    public object? Meta { get; set; }
 }
 
 public class BaseResponse : BaseResponse<object>

@@ -6,7 +6,7 @@ using fashion_shop.Core.DTOs.Responses.Admin;
 using fashion_shop.Core.Entities;
 using fashion_shop.Core.Interfaces.Repositories;
 using fashion_shop.Core.Interfaces.Services;
-using fashion_shop.fashion_shop.Core.Exceptions;
+using fashion_shop.Core.Exceptions;
 using Microsoft.EntityFrameworkCore;
 
 namespace fashion_shop.Infrastructure.Services;
@@ -26,7 +26,7 @@ public class CategoryService : ICategoryService
 
     public async Task<PaginationData<CategoryDto>> GetListAsync(GetCategoryRequest request)
     {
-        var query = _categoryRepository.GetAllQueryable();
+        var query = _categoryRepository.Queryable;
 
         var total = await query.CountAsync();
 
@@ -54,7 +54,7 @@ public class CategoryService : ICategoryService
     {
         var category = _mapper.Map<Category>(request);
 
-        if (await _categoryRepository.GetAllQueryable().AnyAsync(_ => _.Name.ToLower() == category.Name.ToLower()))
+        if (await _categoryRepository.Queryable.AnyAsync(_ => _.Name.ToLower() == category.Name.ToLower()))
         {
             throw new BadRequestException("Name already existed");
         }
@@ -67,11 +67,19 @@ public class CategoryService : ICategoryService
 
     public async Task DeleteAsync(int id)
     {
-        if (await _productRepository.GetByIdAsync(id) is not null)
+        var category = await _categoryRepository.Queryable.FirstOrDefaultAsync(_ => _.Id == id);
+
+        if (category is null)
+        {
+            throw new NotFoundException($"Not found category with Id={id}");
+        }
+
+        if (await _productRepository.Queryable.FirstOrDefaultAsync(_ => _.Id == id) is not null)
         {
             throw new BadRequestException("Can not delete category because it has products");
         }
 
-        await _categoryRepository.DeleteByIdAsync(id);
+        _categoryRepository.Delete(category);
+        await _categoryRepository.UnitOfWork.SaveChangesAsync();
     }
 }

@@ -1,4 +1,4 @@
-namespace fashion_shop.fashion_shop.Core.Exceptions;
+namespace fashion_shop.Core.Exceptions;
 
 public class ForbiddenException : Exception
 {

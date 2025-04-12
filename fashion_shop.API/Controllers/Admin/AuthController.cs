@@ -1,19 +1,13 @@
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Net;
 using System.Security.Claims;
-using System.Threading.Tasks;
-using fashion_shop.API.Attributes;
 using fashion_shop.Core.DTOs;
 using fashion_shop.Core.DTOs.Requests.Admin;
 using fashion_shop.Core.DTOs.Responses.Admin;
-using fashion_shop.Core.Entities;
 using fashion_shop.Core.Interfaces.Services;
-using fashion_shop.fashion_shop.Core.Exceptions;
-using Microsoft.AspNetCore.Identity;
+using fashion_shop.Core.Exceptions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
 
 namespace fashion_shop.API.Controllers.Admin
 {
@@ -56,10 +50,12 @@ namespace fashion_shop.API.Controllers.Admin
         }
 
         [HttpPost("logout")]
-        // [Authenticate]
         public async Task<BaseResponse<string>> Logout()
         {
-            _httpContextAccessor.HttpContext.Request.Headers.TryGetValue("Authorization", out var tokenValues);
+            var tokenValues = default(StringValues);
+
+            _httpContextAccessor.HttpContext?.Request.Headers.TryGetValue("Authorization", out tokenValues);
+
             var token = tokenValues.FirstOrDefault();
 
             if (tokenValues.Count == 0 || string.IsNullOrWhiteSpace(token))
@@ -74,9 +70,9 @@ namespace fashion_shop.API.Controllers.Admin
                 throw new UnAuthorizedException("UnAuthorization");
             }
 
-            var userId = claim.FindFirstValue("userId");
+            var userId = claim.FindFirstValue("userId") ?? throw new UnAuthorizedException("Invalid Tokenn : Missing userId");
 
-            var jti = claim.FindFirstValue(JwtRegisteredClaimNames.Jti);
+            var jti = claim.FindFirstValue(JwtRegisteredClaimNames.Jti) ?? throw new UnAuthorizedException("Invalid Tokenn: Missing Jti");
 
             return await _adminAuthService.LogoutAsync(userId, jti);
         }

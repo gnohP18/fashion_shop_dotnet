@@ -29,6 +29,27 @@ namespace fashion_shop.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "media_files",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    file_name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    file_extension = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    content_type = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    object_type = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    object_id = table.Column<int>(type: "integer", nullable: false),
+                    s3key = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    is_upload = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
+                    updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_media_files", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "roles",
                 columns: table => new
                 {
@@ -79,7 +100,7 @@ namespace fashion_shop.Infrastructure.Migrations
                     slug = table.Column<string>(type: "character varying(400)", maxLength: 400, nullable: false),
                     price = table.Column<int>(type: "integer", nullable: false),
                     image_url = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
-                    description = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
+                    description = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
                     category_id = table.Column<int>(type: "integer", nullable: false),
                     created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
                     updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
@@ -262,9 +283,10 @@ namespace fashion_shop.Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "ix_order_details_order_id",
+                name: "ix_order_details_order_id_product_id",
                 table: "order_details",
-                column: "order_id");
+                columns: new[] { "order_id", "product_id" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "ix_order_details_product_id",
@@ -328,6 +350,9 @@ namespace fashion_shop.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "media_files");
+
             migrationBuilder.DropTable(
                 name: "order_details");
 

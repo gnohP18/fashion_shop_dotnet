@@ -2,66 +2,65 @@ using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Text.Json;
 using fashion_shop.Core.DTOs;
-using fashion_shop.fashion_shop.Core.Exceptions;
+using fashion_shop.Core.Exceptions;
 
-namespace fashion_shop.API.Middlewares
+namespace fashion_shop.API.Middlewares;
+
+public class ErrorHandlerMiddleware
 {
-    public class ErrorHandlerMiddleware
+    private readonly RequestDelegate _next;
+
+    public ErrorHandlerMiddleware(RequestDelegate next)
     {
-        private readonly RequestDelegate _next;
+        _next = next;
+    }
 
-        public ErrorHandlerMiddleware(RequestDelegate next)
+    public async Task InvokeAsync(HttpContext httpContext)
+    {
+        try
         {
-            _next = next;
+            await _next(httpContext);
         }
-
-        public async Task InvokeAsync(HttpContext httpContext)
+        catch (Exception ex)
         {
-            try
-            {
-                await _next(httpContext);
-            }
-            catch (Exception ex)
-            {
-                await HandleExceptionAsync(httpContext, ex);
-            }
+            await HandleExceptionAsync(httpContext, ex);
         }
+    }
 
-        private async Task HandleExceptionAsync(HttpContext context, Exception exception)
+    private async Task HandleExceptionAsync(HttpContext context, Exception exception)
+    {
+        var response = context.Response;
+
+        if (response.HasStarted) return; // Nếu response đã bắt đầu ghi dữ liệu, không xử lý nữa.
+
+        response.ContentType = "application/json";
+
+        var errorDetail = new BaseResponse
         {
-            var response = context.Response;
+            StatusCode = HttpStatusCode.InternalServerError,
+            Message = exception.Message,
+        };
 
-            if (response.HasStarted) return; // Nếu response đã bắt đầu ghi dữ liệu, không xử lý nữa.
+        // Xác định mã lỗi theo loại exception
+        response.StatusCode = exception switch
+        {
+            NotFoundException => (int)HttpStatusCode.NotFound,
+            UnAuthorizedException => (int)HttpStatusCode.Unauthorized,
+            ForbiddenException => (int)HttpStatusCode.Forbidden,
+            BadRequestException => (int)HttpStatusCode.BadRequest,
+            ValidationException => (int)HttpStatusCode.UnprocessableEntity,
+            _ => (int)HttpStatusCode.InternalServerError // Mặc định lỗi server
+        };
 
-            response.ContentType = "application/json";
+        errorDetail.StatusCode = (HttpStatusCode)response.StatusCode;
+        errorDetail.Message = exception.Message;
 
-            var errorDetail = new BaseResponse
-            {
-                StatusCode = HttpStatusCode.InternalServerError,
-                Message = exception.Message,
-            };
+        var serializeOptions = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            WriteIndented = true
+        };
 
-            // Xác định mã lỗi theo loại exception
-            response.StatusCode = exception switch
-            {
-                NotFoundException => (int)HttpStatusCode.NotFound,
-                UnAuthorizedException => (int)HttpStatusCode.Unauthorized,
-                ForbiddenException => (int)HttpStatusCode.Forbidden,
-                BadRequestException => (int)HttpStatusCode.BadRequest,
-                ValidationException => (int)HttpStatusCode.UnprocessableEntity,
-                _ => (int)HttpStatusCode.InternalServerError // Mặc định lỗi server
-            };
-
-            errorDetail.StatusCode = (HttpStatusCode)response.StatusCode;
-            errorDetail.Message = exception.Message;
-
-            var serializeOptions = new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                WriteIndented = true
-            };
-
-            await response.WriteAsync(JsonSerializer.Serialize(errorDetail, serializeOptions));
-        }
+        await response.WriteAsync(JsonSerializer.Serialize(errorDetail, serializeOptions));
     }
 }

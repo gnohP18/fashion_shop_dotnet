@@ -19,6 +19,7 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, int>, IUnitOfW
     public DbSet<Category> Categories { get; set; }
     public DbSet<Order> Orders { get; set; }
     public DbSet<OrderDetail> OrderDetails { get; set; }
+    public DbSet<MediaFile> MediaFiles { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

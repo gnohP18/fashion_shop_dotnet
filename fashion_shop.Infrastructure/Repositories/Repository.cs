@@ -26,54 +26,26 @@ public class Repository<T> : IRepository<T> where T : class
 
     public IUnitOfWork UnitOfWork => _dbContext;
 
-    public async Task<T?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
-    {
-        return await _dbSet.FindAsync(id, cancellationToken);
-    }
-
-    public async Task<T?> GetOneAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
-    {
-        return await _dbSet.FirstOrDefaultAsync(predicate, cancellationToken);
-    }
-
-    public async Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken = default)
-    {
-        return await _dbSet.ToListAsync(cancellationToken);
-    }
-
-    public async Task<IEnumerable<T>> GetByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default)
-    {
-        return await _dbSet.Where(e => ids.Contains(EF.Property<int>(e, "Id"))).ToListAsync(cancellationToken);
-    }
+    public IQueryable<T> Queryable => _dbSet.AsQueryable();
 
     public async Task AddAsync(T entity, CancellationToken cancellationToken = default)
     {
         await _dbSet.AddAsync(entity, cancellationToken);
     }
 
-    public async Task UpdateAsync(T entity, CancellationToken cancellationToken = default)
+    public void Update(T entity)
     {
         _dbSet.Update(entity);
-        await Task.CompletedTask;
     }
 
-    public async Task DeleteByIdAsync(int id, CancellationToken cancellationToken = default)
+    public void Delete(T entity)
     {
-        var entity = await _dbSet.FindAsync(id, cancellationToken);
-        if (entity != null)
-        {
-            _dbSet.Remove(entity);
-        }
+        _dbSet.Remove(entity);
     }
 
-    public async Task DeleteByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default)
+    public void DeleteByIds(IEnumerable<int> ids)
     {
-        var entities = await _dbSet.Where(e => ids.Contains(EF.Property<int>(e, "Id"))).ToListAsync(cancellationToken);
+        var entities = _dbSet.Where(e => ids.Contains(EF.Property<int>(e, "Id"))).ToList();
         _dbSet.RemoveRange(entities);
-    }
-
-    public IQueryable<T> GetAllQueryable()
-    {
-        return _dbSet.AsNoTracking();
     }
 }

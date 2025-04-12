@@ -21,47 +21,24 @@ public class OrderRepository : IOrderRepository
 
     public IUnitOfWork UnitOfWork => _dbContext;
 
+    public IQueryable<Order> Queryable => _dbContext.Orders.AsQueryable();
+
     public Task AddAsync(Order entity, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
 
-    public Task DeleteByIdAsync(int id, CancellationToken cancellationToken = default)
+    public void Delete(Order entity)
     {
         throw new NotImplementedException();
     }
 
-    public Task DeleteByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default)
+    public void DeleteByIds(IEnumerable<int> ids)
     {
         throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<Order>> GetAllAsync(CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
-
-    public IQueryable<Order> GetAllQueryable()
-    {
-        return _dbContext.Orders.AsNoTracking();
-    }
-
-    public Task<Order?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<IEnumerable<Order>> GetByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<Order?> GetOneAsync(Expression<Func<Order, bool>> predicate, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task UpdateAsync(Order entity, CancellationToken cancellationToken = default)
+    public void Update(Order entity)
     {
         throw new NotImplementedException();
     }

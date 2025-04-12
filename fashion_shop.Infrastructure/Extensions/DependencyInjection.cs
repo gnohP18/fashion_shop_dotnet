@@ -1,3 +1,4 @@
+using fashion_shop.Core.DTOs.Common;
 using fashion_shop.Core.Interfaces.Repositories;
 using fashion_shop.Core.Interfaces.Services;
 using fashion_shop.Infrastructure.Database;
@@ -6,6 +7,8 @@ using fashion_shop.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using Minio;
 using StackExchange.Redis;
 
 namespace fashion_shop.Infrastructure.Extensions
@@ -18,6 +21,7 @@ namespace fashion_shop.Infrastructure.Extensions
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<IAdminAuthService, AdminAuthService>();
             services.AddSingleton<ITokenService, TokenService>();
+            services.AddScoped<IMediaFileService, MediaFileService>();
 
             return services;
         }
@@ -26,7 +30,7 @@ namespace fashion_shop.Infrastructure.Extensions
         {
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IProductRepository, ProductRepository>();
-            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IMediaFileRepository, MediaFileRepository>();
 
             return services;
         }
@@ -40,9 +44,20 @@ namespace fashion_shop.Infrastructure.Extensions
                 .UseSnakeCaseNamingConvention());
 
             var redisConnectionString = configuration.GetConnectionString("RedisConnection");
+            if (!string.IsNullOrEmpty(redisConnectionString))
+            {
+                services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConnectionString));
+            }
 
-            services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConnectionString));
-
+            services.AddSingleton(resolver =>
+            {
+                var config = resolver.GetRequiredService<IOptions<MinioSettings>>().Value;
+                return new MinioClient()
+                    .WithEndpoint(config.Endpoint)
+                    .WithCredentials(config.AccessKey, config.SecretKey)
+                    .WithSSL(false)
+                    .Build();
+            });
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             return services;

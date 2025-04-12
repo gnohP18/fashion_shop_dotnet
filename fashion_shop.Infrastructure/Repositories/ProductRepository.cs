@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using fashion_shop.Core.Entities;
 using fashion_shop.Core.Interfaces.Repositories;
-using fashion_shop.fashion_shop.Core.Exceptions;
+using fashion_shop.Core.Exceptions;
 using fashion_shop.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,57 +21,24 @@ public class ProductRepository : IProductRepository
     }
 
     public IUnitOfWork UnitOfWork => _dbContext;
+    public IQueryable<Product> Queryable => _dbContext.Products.AsQueryable();
 
     public async Task AddAsync(Product entity, CancellationToken cancellationToken = default)
     {
         await _dbContext.AddAsync(entity, cancellationToken);
     }
 
-    public async Task DeleteByIdAsync(int id, CancellationToken cancellationToken = default)
+    public void Delete(Product entity)
     {
-
-        var product = await _dbContext.Products.FirstOrDefaultAsync(_ => _.Id == id, cancellationToken);
-        if (product != null)
-        {
-            _dbContext.Products.Remove(product);
-        }
-        else
-        {
-            throw new NotFoundException("Not found product");
-        }
+        _dbContext.Products.Remove(entity);
     }
 
-    public Task DeleteByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default)
+    public void DeleteByIds(IEnumerable<int> ids)
     {
         throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<Product>> GetAllAsync(CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
-
-    public IQueryable<Product> GetAllQueryable()
-    {
-        return _dbContext.Products.AsNoTracking();
-    }
-
-    public async Task<Product?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
-    {
-        return await _dbContext.Products.FirstOrDefaultAsync(_ => _.Id == id, cancellationToken);
-    }
-
-    public Task<IEnumerable<Product>> GetByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<Product?> GetOneAsync(Expression<Func<Product, bool>> predicate, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task UpdateAsync(Product entity, CancellationToken cancellationToken = default)
+    public void Update(Product entity)
     {
         throw new NotImplementedException();
     }

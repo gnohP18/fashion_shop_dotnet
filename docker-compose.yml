@@ -6,7 +6,11 @@ services:
     build:
       context: .
       dockerfile: ./${PROJECT_NAME}.API/Dockerfile
+    volumes:
+      - ./${PROJECT_NAME}.API/appsettings.Development.json:/app/appsettings.Development.json:ro
     restart: unless-stopped
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
     ports:
       - 8123:8123
 

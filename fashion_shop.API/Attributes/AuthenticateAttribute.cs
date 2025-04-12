@@ -6,7 +6,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using fashion_shop.Core.Common;
 using fashion_shop.Core.Interfaces.Services;
-using fashion_shop.fashion_shop.Core.Exceptions;
+using fashion_shop.Core.Exceptions;
 using Microsoft.AspNetCore.Mvc.Filters;
 using StackExchange.Redis;
 

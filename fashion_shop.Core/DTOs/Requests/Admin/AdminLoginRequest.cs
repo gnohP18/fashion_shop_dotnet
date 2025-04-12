@@ -8,7 +8,7 @@ namespace fashion_shop.Core.DTOs.Requests.Admin;
 
 public class AdminLoginRequest
 {
-    [Required(ErrorMessage = "UserName is required")]
+    [Required(ErrorMessage = "Username is required")]
     [MinLength(3, ErrorMessage = "UserName must be at least 3 characters")]
     public string Username { get; set; } = default!;
 
