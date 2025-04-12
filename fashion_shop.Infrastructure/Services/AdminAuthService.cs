@@ -13,7 +13,7 @@ using fashion_shop.Core.Entities;
 using fashion_shop.Core.Extensions;
 using fashion_shop.Core.Interfaces.Repositories;
 using fashion_shop.Core.Interfaces.Services;
-using fashion_shop.fashion_shop.Core.Exceptions;
+using fashion_shop.Core.Exceptions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
@@ -22,7 +22,6 @@ namespace fashion_shop.Infrastructure.Services
 {
     public class AdminAuthService : IAdminAuthService
     {
-        private readonly IUserRepository _userRepository;
         private readonly ILogger _logger;
         private readonly IDatabase _redis;
         private readonly ITokenService _tokenService;
@@ -30,14 +29,12 @@ namespace fashion_shop.Infrastructure.Services
         private readonly UserManager<User> _userManager;
 
         public AdminAuthService(
-            IUserRepository userRepository,
             ILogger<AdminAuthService> logger,
             IConnectionMultiplexer connectionMultiplexer,
             ITokenService tokenService,
             IPasswordHasher<User> passwordHasher,
             UserManager<User> userManager)
         {
-            _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _redis = connectionMultiplexer.GetDatabase() ?? throw new ArgumentNullException(nameof(connectionMultiplexer));
             _tokenService = tokenService ?? throw new ArgumentNullException(nameof(tokenService));
@@ -49,7 +46,7 @@ namespace fashion_shop.Infrastructure.Services
         {
             _logger.LogInformation("Start LoginAsync");
             // Check request
-            var user = await _userRepository.GetOneAsync(x => x.UserName == request.Username);
+            var user = await _userManager.FindByNameAsync(request.Username);
             if (user is null)
             {
                 throw new NotFoundException("Not found user");
@@ -62,7 +59,7 @@ namespace fashion_shop.Infrastructure.Services
                 throw new ForbiddenException("You are not authorized to access the admin panel");
             }
 
-            var resultCheckPassword = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, request.Password);
+            var resultCheckPassword = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash ?? "", request.Password);
 
             if (resultCheckPassword == PasswordVerificationResult.Failed)
             {
@@ -97,7 +94,6 @@ namespace fashion_shop.Infrastructure.Services
             {
                 StatusCode = HttpStatusCode.OK,
                 Message = "Token revoked",
-                Data = null
             };
         }
 
@@ -119,7 +115,7 @@ namespace fashion_shop.Infrastructure.Services
 
             var userId = claim.FindFirstValue("userId");
 
-            var user = await _userRepository.GetByIdAsync(Int32.Parse(userId));
+            var user = await _userManager.FindByIdAsync(userId ?? "");
             if (user == null)
             {
                 throw new NotFoundException("User not found");

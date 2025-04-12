@@ -6,6 +6,8 @@ using fashion_shop.Infrastructure.Database;
 using fashion_shop.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Minio;
 using SampleDotNet.Api.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,6 +30,9 @@ services.AddRepositories();
 //------------------------------ Mapper ------------------------------------------//
 services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 services.AddHttpContextAccessor();
+
+//------------------------------ Minio Settings ----------------------------------//
+services.Configure<MinioSettings>(builder.Configuration.GetSection("MinioSettings"));
 
 //------------------------------ Identity & Token Settings ----------------------------------//
 services.Configure<TokenSettings>(builder.Configuration.GetSection("TokenSettings"));

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace fashion_shop.fashion_shop.Core.Exceptions;
+namespace fashion_shop.Core.Exceptions;
 
 public class NotFoundException : Exception
 {

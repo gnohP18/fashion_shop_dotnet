@@ -9,7 +9,7 @@ using fashion_shop.Core.Common;
 using fashion_shop.Core.DTOs.Common;
 using fashion_shop.Core.Entities;
 using fashion_shop.Core.Interfaces.Services;
-using fashion_shop.fashion_shop.Core.Exceptions;
+using fashion_shop.Core.Exceptions;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -33,7 +33,7 @@ namespace fashion_shop.Infrastructure.Services
             var claims = new List<Claim>
             {
                 new Claim("userId", user.Id.ToString()),
-                new Claim("username", user.UserName),
+                new Claim("username", user.UserName ?? ""),
                 new Claim(JwtRegisteredClaimNames.Jti, jti)
             };
 

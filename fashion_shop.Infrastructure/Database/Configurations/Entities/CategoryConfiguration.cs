@@ -13,7 +13,7 @@ public class CategoryConfiguration : ConfigurationEntity<Category>
 {
     public override void Configure(EntityTypeBuilder<Category> builder)
     {
-        base.Configure(builder); // dùng cấu hình chung từ base
+        base.Configure(builder);
 
         builder.Property(p => p.Name)
                .HasMaxLength(255)

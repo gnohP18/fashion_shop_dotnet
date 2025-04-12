@@ -5,9 +5,7 @@ using System.Threading.Tasks;
 using fashion_shop.Core.Common;
 using fashion_shop.Core.Entities;
 using fashion_shop.Core.Extensions;
-using fashion_shop.Core.Interfaces.Services;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace fashion_shop.API.Seeders;
 

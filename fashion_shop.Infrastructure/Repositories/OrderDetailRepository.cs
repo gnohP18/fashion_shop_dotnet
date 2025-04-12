@@ -20,47 +20,24 @@ public class OrderDetailRepository : IOrderDetailRepository
 
     public IUnitOfWork UnitOfWork => _dbContext;
 
+    public IQueryable<OrderDetail> Queryable => _dbContext.OrderDetails.AsQueryable();
+
     public Task AddAsync(OrderDetail entity, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
 
-    public Task DeleteByIdAsync(int id, CancellationToken cancellationToken = default)
+    public void Delete(OrderDetail entity)
     {
         throw new NotImplementedException();
     }
 
-    public Task DeleteByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default)
+    public void DeleteByIds(IEnumerable<int> ids)
     {
         throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<OrderDetail>> GetAllAsync(CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
-
-    public IQueryable<OrderDetail> GetAllQueryable()
-    {
-        return _dbContext.OrderDetails.AsNoTracking();
-    }
-
-    public Task<OrderDetail?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<IEnumerable<OrderDetail>> GetByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<OrderDetail?> GetOneAsync(Expression<Func<OrderDetail, bool>> predicate, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task UpdateAsync(OrderDetail entity, CancellationToken cancellationToken = default)
+    public void Update(OrderDetail entity)
     {
         throw new NotImplementedException();
     }
