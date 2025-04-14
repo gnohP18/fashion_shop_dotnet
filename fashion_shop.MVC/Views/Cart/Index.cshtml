@@ -1,0 +1,84 @@
+@using fashion_shop.Core.DTOs.Requests.Admin
+@using static fashion_shop.MVC.Controllers.CartController
+@{
+    var cartItems = ViewBag.CartItems as Dictionary<ProductDto, int>;
+}
+<section>
+    @if (cartItems is not null && cartItems?.Count() > 0)
+    {
+        @foreach (var cartItem in cartItems)
+        {
+            <div class="row product-row" id="product_row_@cartItem.Key.Id">
+                <div class="col-12 col-md-2">
+                    <div class="img-wrapper" style="width: 150px; height:150px; overflow: hidden;">
+                        <img class="img-fluid rounded" src="@cartItem.Key.ImageUrl" alt="@cartItem.Key.Name" />
+                    </div>
+                </div>
+                <div class="col-12 col-md-10 d-flex flex-row">
+                    <div class="col-6 col-md-4">
+                        <a class="fs-3" asp-controller="Shop" asp-action="Detail"
+                            asp-route-id="@cartItem.Key.Id">@cartItem.Key.Name</a>
+                        <h6>Danh mục: @cartItem.Key.CategoryName</h6>
+                    </div>
+                    <div class="col-6 col-md-4 d-flex flex-row">
+                        <div class="col-6">
+                            <div class="row"></div>
+                            <div class="form-group w-50">
+                                <label class="fw-bold" for="input_quantity_{@cartItem.Key.Id}">Số lượng</label>
+                                <input type="number" id="input_quantity_{@cartItem.Key.Id}" class="form-control text-center"
+                                    step="1" min="1" name="quantity" value="@cartItem.Value">
+                            </div>
+                            using fashion_shop.Core.Entities;
+
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group d-flex flex-column">
+                                <label class="fw-bold">Giá</label>
+                                <label class="py-2">VND @cartItem.Key.Price</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-4">
+                        <div class="form-group d-flex flex-column align-items-end justify-content-between">
+                            <div class="d-flex flex-column flex-1">
+                                <label class="fw-bold">Thành tiền</label>
+                                <label class="py-2">VND @cartItem.Key.Price</label>
+                            </div>
+                            <button type="button" data-product-id="@cartItem.Key.Id"
+                                class="btn btn-small btn-black hvr-sweep-to-right remove-item-cart-btn">Xoá</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        <div class="row">
+            <div class="col-12 col-md-4"></div>
+            <div class="col-12 col-md-4"></div>
+            <div id="total_wrapper" class="col-12 col-md-4 d-flex flex-column align-items-end">
+                <div class="d-flex flex-column">
+                    <h4>Tổng tiền</h4>
+                    <p id="total"></p>
+                </div>
+            </div>
+            <div id="empty_cart" class="col-12 col-md-4 w-100 d-flex flex-column align-items-center justify-content-center">
+                <h5>Bạn không có sản phẩm nào trong giỏ cả!!!</h5>
+            </div>
+        </div>
+
+        <div class="row d-flex justify-content-end">
+            <a type="button" id="checkoutBtn" class="btn btn-outline-gray hvr-sweep-to-right dark-sweep"
+                asp-action="Checkout" asp-controller="Cart">Thanh
+                toán</a>
+        </div>
+    }
+    else
+    {
+        <div id="empty_cart" class="col-12 col-md-4 w-100 d-flex flex-column align-items-center justify-content-center">
+            <h5>Bạn không có sản phẩm nào trong giỏ cả!!!</h5>
+        </div>
+    }
+</section>
+@section Scripts {
+    <script src="~/js/cart/cart.js"></script>
+}

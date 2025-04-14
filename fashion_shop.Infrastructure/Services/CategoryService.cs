@@ -26,7 +26,7 @@ public class CategoryService : ICategoryService
 
     public async Task<PaginationData<CategoryDto>> GetListAsync(GetCategoryRequest request)
     {
-        var query = _categoryRepository.Queryable;
+        var query = _categoryRepository.Queryable.AsNoTracking();
 
         var total = await query.CountAsync();
 
@@ -41,13 +41,13 @@ public class CategoryService : ICategoryService
             : query.OrderBy(x => request.SortBy);
 
         var data = await query
-            .Skip((request.Page - 1) * request.Limit)
-            .Take(request.Limit)
+            .Skip((request.Page - 1) * request.Offset)
+            .Take(request.Offset)
             .ToListAsync();
 
         var dataMapping = _mapper.Map<IEnumerable<CategoryDto>>(data);
 
-        return new PaginationData<CategoryDto>(dataMapping, request.Limit, request.Page, total);
+        return new PaginationData<CategoryDto>(dataMapping, request.Offset, request.Page, total);
     }
 
     public async Task<CreateCategoryResponse> CreateAsync(CreateCategoryRequest request)

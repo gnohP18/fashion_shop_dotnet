@@ -1,0 +1,51 @@
+@using Microsoft.AspNetCore.Identity
+@using fashion_shop.Core.DTOs.Requests.Admin
+@using fashion_shop.Core.Entities
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
+@{
+    var product = ViewBag.ProductDetail as ProductDto;
+}
+
+<section class="py-5">
+    <div class="container">
+        <div class="row gx-5">
+            <aside class="col-lg-6">
+                <div class="rounded-4 d-flex justify-content-center">
+                    <img style="max-width: 100%; max-height: 100vh; margin: auto;" class="rounded-4 fit"
+                        src="@product?.ImageUrl" />
+                </div>
+            </aside>
+            <main class="col-lg-6">
+                <div class="ps-lg-3">
+                    <h4 class="title text-dark">
+                        @product?.Name
+                    </h4>
+
+                    <div class="mb-3">
+                        <span class="h5">VND @product?.Price</span>
+                        <span class="text-muted">/item</span>
+                    </div>
+
+                    <p>
+                        @product?.Description
+                    </p>
+
+                    <hr />
+                    <a href="#" class="btn btn-warning shadow-0 hvr-sweep-to-right"> Buy now </a>
+                    @if (SignInManager.IsSignedIn(User))
+                    {
+                        <a data-product-id="@product?.Id" class="btn btn-black shadow-0 add-to-cart-btn hvr-sweep-to-right">
+                            <i class="me-1 fa fa-shopping-basket"></i> Add to cart
+                        </a>
+                    }
+                    <a href="#" class="btn btn-light hvr-sweep-to-right border border-secondary icon-hover px-3">
+                        <i class="me-1 fa fa-heart fa-lg"></i> Save </a>
+                </div>
+            </main>
+        </div>
+    </div>
+</section>
+@section Scripts {
+    <script src="~/js/shop/productDetail.js"></script>
+}

@@ -20,8 +20,9 @@ namespace fashion_shop.Infrastructure.Extensions
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<IAdminAuthService, AdminAuthService>();
-            services.AddSingleton<ITokenService, TokenService>();
+            services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IMediaFileService, MediaFileService>();
+            services.AddScoped<ICartService, CartService>();
 
             return services;
         }
