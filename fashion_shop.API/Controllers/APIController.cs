@@ -19,19 +19,29 @@ namespace fashion_shop.API.Controllers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        protected BaseResponse<A> HandleInvalidModel<A>() where A : class
+        protected ActionResult SuccessResponse<A>(A data, string message) where A : class
+        {
+            return Ok(new
+            {
+                status = 200,
+                message,
+                data
+            });
+        }
+
+        protected ActionResult ErrorResponse<A>(string message) where A : class
         {
             var errors = ModelState.Values
                 .SelectMany(v => v.Errors)
                 .Select(e => e.ErrorMessage)
                 .ToList();
 
-            return new BaseResponse<A>
+            return BadRequest(new
             {
-                StatusCode = HttpStatusCode.BadRequest,
-                Message = "Validation failed",
-                Errors = errors
-            };
+                status = HttpStatusCode.BadRequest,
+                message,
+                data = errors
+            });
         }
     }
 }
