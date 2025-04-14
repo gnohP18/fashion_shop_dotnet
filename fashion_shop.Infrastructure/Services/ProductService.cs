@@ -46,7 +46,7 @@ public class ProductService : IProductService
         }
 
         product.Category = category;
-        product.Slug = $"{request.Slug}-{DateTime.UtcNow.ToString("yyyyMMddHHmmssfff")}";
+        product.Slug = Function.GenerateSlugProduct(request.Slug);
 
         await _productRepository.AddAsync(product);
         await _productRepository.UnitOfWork.SaveChangesAsync();
@@ -58,7 +58,7 @@ public class ProductService : IProductService
 
     public async Task<PaginationData<ProductDto>> GetListAsync(GetProductRequest request)
     {
-        var query = _productRepository.Queryable;
+        var query = _productRepository.Queryable.AsNoTracking();
 
         if (!string.IsNullOrEmpty(request.KeySearch))
         {
@@ -76,42 +76,41 @@ public class ProductService : IProductService
         query = query.Include(x => x.Category);
 
         var data = await query
-            .Skip((request.Page - 1) * request.Limit)
-            .Take(request.Limit)
-            .Select(_ => new ProductDto()
+            .Skip((request.Page - 1) * request.Offset)
+            .Take(request.Offset)
+            .Select(p => new ProductDto()
             {
-                Id = _.Id,
-                Name = _.Name,
-                Slug = _.Slug,
-                Price = _.Price,
-                ImageUrl = $"{_minioSettings.Endpoint}/{_minioSettings.BucketName}/{_.ImageUrl}",
-                CategoryId = _.CategoryId,
-                CategoryName = _.Category.Name,
+                Id = p.Id,
+                Name = p.Name,
+                Slug = p.Slug,
+                Price = p.Price,
+                ImageUrl = $"{_minioSettings.Endpoint}/{_minioSettings.BucketName}/{p.ImageUrl}",
+                CategoryId = p.CategoryId,
+                CategoryName = p.Category.Name,
             })
             .ToListAsync();
 
-        return new PaginationData<ProductDto>(data, request.Limit, request.Page, data.Count());
+        var total = await query.Select(x => x.Id).CountAsync();
+
+        return new PaginationData<ProductDto>(data, request.Offset, request.Page, total);
     }
 
-    public async Task<ProductDto> GetDetailAsync(int id)
+    public async Task<ProductDto?> GetDetailAsync(int id)
     {
         var productDto = await _productRepository.Queryable
-            .Select(_ => new ProductDto()
+            .AsNoTracking()
+            .Select(p => new ProductDto()
             {
-                Id = _.Id,
-                Name = _.Name,
-                Slug = _.Slug,
-                Price = _.Price,
-                ImageUrl = $"{_minioSettings.Endpoint}/{_minioSettings.BucketName}/{_.ImageUrl}",
-                CategoryId = _.CategoryId,
-                CategoryName = _.Category.Name,
-            }).FirstOrDefaultAsync(_ => _.Id == id);
+                Id = p.Id,
+                Name = p.Name,
+                Slug = p.Slug,
+                Price = p.Price,
+                ImageUrl = $"{_minioSettings.Endpoint}/{_minioSettings.BucketName}/{p.ImageUrl}",
+                CategoryId = p.CategoryId,
+                CategoryName = p.Category.Name,
+            }).FirstOrDefaultAsync(p => p.Id == id);
 
-        if (productDto == null)
-        {
-            throw new NotFoundException($"Not found product=Id {id}");
-        }
-        return productDto;
+        return productDto ?? null;
     }
 
     public async Task DeleteAsync(int id)

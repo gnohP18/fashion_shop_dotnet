@@ -1,0 +1,54 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using fashion_shop.Core.DTOs.Common;
+using fashion_shop.Core.DTOs.Requests.Admin;
+using fashion_shop.Core.Entities;
+using fashion_shop.Core.Interfaces.Repositories;
+using fashion_shop.Core.Interfaces.Services;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+
+namespace fashion_shop.Infrastructure.Services;
+
+public class CartService : ICartService
+{
+    private readonly IProductRepository _productRepository;
+    private readonly MinioSettings _minioSettings;
+
+    public CartService(
+        IProductRepository productRepository,
+        IOptions<MinioSettings> options)
+    {
+        _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
+        _minioSettings = options.Value ?? throw new ArgumentNullException(nameof(options));
+    }
+
+    public async Task<Dictionary<ProductDto, int>> GetListAsync(Dictionary<int, int> cartItems)
+    {
+        var ids = cartItems.Select(x => x.Key).ToList();
+
+        var query = await _productRepository
+            .Queryable
+            .AsNoTracking()
+            .Where(x => ids.Contains(x.Id))
+            .Select(p => new ProductDto()
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Slug = p.Slug,
+                Price = p.Price,
+                ImageUrl = $"{_minioSettings.Endpoint}/{_minioSettings.BucketName}/{p.ImageUrl}",
+                CategoryId = p.CategoryId,
+                CategoryName = p.Category.Name,
+            }).ToListAsync();
+
+        var result = query.ToDictionary(
+            product => product,
+            product => cartItems[product.Id]
+        );
+
+        return result;
+    }
+}

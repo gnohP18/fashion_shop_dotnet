@@ -164,6 +164,11 @@ namespace fashion_shop.API.Controllers.Admin
         {
             var data = await _productService.GetDetailAsync(id);
 
+            if (data is null)
+            {
+                throw new NotFoundException($"Not found product Id={id}");
+            }
+
             return new BaseResponse<ProductDto>()
             {
                 StatusCode = HttpStatusCode.OK,
