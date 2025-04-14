@@ -32,25 +32,20 @@ namespace fashion_shop.API.Controllers.Admin
         }
 
         [HttpPost("login")]
-        public async Task<BaseResponse<AdminLoginResponse>> Login([FromBody] AdminLoginRequest request)
+        public async Task<IActionResult> Login([FromBody] AdminLoginRequest request)
         {
             if (!ModelState.IsValid)
             {
-                return HandleInvalidModel<AdminLoginResponse>();
+                return ErrorResponse<AdminLoginResponse>("Validation Failed");
             }
 
             var data = await _adminAuthService.LoginAsync(request);
 
-            return new BaseResponse<AdminLoginResponse>()
-            {
-                StatusCode = HttpStatusCode.OK,
-                Message = "Login successfully",
-                Data = data,
-            };
+            return SuccessResponse<AdminLoginResponse>(data, "Login successfully");
         }
 
         [HttpPost("logout")]
-        public async Task<BaseResponse<string>> Logout()
+        public async Task<IActionResult> Logout()
         {
             var tokenValues = default(StringValues);
 
@@ -74,25 +69,22 @@ namespace fashion_shop.API.Controllers.Admin
 
             var jti = claim.FindFirstValue(JwtRegisteredClaimNames.Jti) ?? throw new UnAuthorizedException("Invalid Tokenn: Missing Jti");
 
-            return await _adminAuthService.LogoutAsync(userId, jti);
+            await _adminAuthService.LogoutAsync(userId, jti);
+
+            return SuccessResponse<string>(string.Empty, "Logout successfully");
         }
 
         [HttpPost("refresh")]
-        public async Task<BaseResponse<AdminLoginResponse>> Refresh([FromBody] AdminRefreshLoginRequest request)
+        public async Task<IActionResult> Refresh([FromBody] AdminRefreshLoginRequest request)
         {
             if (!ModelState.IsValid)
             {
-                return HandleInvalidModel<AdminLoginResponse>();
+                return ErrorResponse<AdminLoginResponse>("Validation Failed");
             }
 
             var data = await _adminAuthService.RefreshLoginAsync(request);
 
-            return new BaseResponse<AdminLoginResponse>()
-            {
-                StatusCode = HttpStatusCode.OK,
-                Message = "Refresh login successfully",
-                Data = data,
-            };
+            return SuccessResponse<AdminLoginResponse>(data, "Refresh login successfully");
         }
     }
 }

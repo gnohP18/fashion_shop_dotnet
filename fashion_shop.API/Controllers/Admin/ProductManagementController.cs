@@ -33,21 +33,16 @@ namespace fashion_shop.API.Controllers.Admin
         }
 
         [HttpPost("categories")]
-        public async Task<BaseResponse<CreateCategoryResponse>> CreateCategory([FromBody] CreateCategoryRequest request)
+        public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryRequest request)
         {
             if (!ModelState.IsValid)
             {
-                return HandleInvalidModel<CreateCategoryResponse>();
+                return ErrorResponse<CreateCategoryResponse>("Validation failed");
             }
 
             var data = await _categoryService.CreateAsync(request);
 
-            return new BaseResponse<CreateCategoryResponse>()
-            {
-                StatusCode = HttpStatusCode.OK,
-                Message = "Created successfully",
-                Data = data,
-            };
+            return SuccessResponse(data, "Created successfully");
         }
 
         [HttpGet("categories")]
@@ -57,15 +52,11 @@ namespace fashion_shop.API.Controllers.Admin
         }
 
         [HttpDelete("categories/{id}")]
-        public async Task<BaseResponse<string>> DeleteCategoryAsync(int id)
+        public async Task<IActionResult> DeleteCategoryAsync(int id)
         {
             await _categoryService.DeleteAsync(id);
 
-            return new BaseResponse<string>()
-            {
-                StatusCode = HttpStatusCode.OK,
-                Message = "Deleted data successfully",
-            };
+            return SuccessResponse<string>(string.Empty, "Deleted data successfully");
         }
 
         [HttpGet("products")]
@@ -75,20 +66,15 @@ namespace fashion_shop.API.Controllers.Admin
         }
 
         [HttpPost("products")]
-        public async Task<BaseResponse<CreateProductResponse>> CreateProduct([FromBody] CreateProductRequest request)
+        public async Task<IActionResult> CreateProduct([FromBody] CreateProductRequest request)
         {
             if (!ModelState.IsValid)
             {
-                return HandleInvalidModel<CreateProductResponse>();
+                return ErrorResponse<CreateProductResponse>("Validation Failed");
             }
             var data = await _productService.CreateAsync(request);
 
-            return new BaseResponse<CreateProductResponse>()
-            {
-                StatusCode = HttpStatusCode.OK,
-                Message = "Created successfully",
-                Data = data,
-            };
+            return SuccessResponse<CreateProductResponse>(data, "Created successfully");
         }
 
         /// <summary>
@@ -99,11 +85,11 @@ namespace fashion_shop.API.Controllers.Admin
         /// <returns>Url</returns>
         /// <exception cref="NotFoundException">Not found Product</exception>
         [HttpPost("products/{id}/upload-image")]
-        public async Task<BaseResponse<string>> UploadProductImage(int id, [FromForm] UploadImageRequest request)
+        public async Task<IActionResult> UploadProductImage(int id, [FromForm] UploadImageRequest request)
         {
             if (!ModelState.IsValid)
             {
-                return HandleInvalidModel<string>();
+                return ErrorResponse<string>("Validation Failed");
             }
 
             var product = await _productService.GetDetailAsync(id);
@@ -123,11 +109,7 @@ namespace fashion_shop.API.Controllers.Admin
                 ObjectId = id
             });
 
-            return new BaseResponse<string>()
-            {
-                StatusCode = HttpStatusCode.OK,
-                Data = data,
-            };
+            return SuccessResponse<string>(data, ""); ;
         }
 
         /// <summary>
@@ -136,11 +118,11 @@ namespace fashion_shop.API.Controllers.Admin
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpPost("products/{id}/presigned-upload")]
-        public async Task<BaseResponse<string>> CreatePresignUploadUrl(int id, [FromBody] CreatePresignedUrlRequest request)
+        public async Task<IActionResult> CreatePresignUploadUrl(int id, [FromBody] CreatePresignedUrlRequest request)
         {
             if (!ModelState.IsValid)
             {
-                return HandleInvalidModel<string>();
+                return ErrorResponse<string>("Validation Failed");
             }
 
             var product = await _productService.GetDetailAsync(id);
@@ -153,14 +135,11 @@ namespace fashion_shop.API.Controllers.Admin
             var presignUrl = await _mediaFileService
                 .CreatePresignedUrlAsync(request, nameof(Product).ToLower(), product.Id);
 
-            return new BaseResponse<string>()
-            {
-                Data = presignUrl
-            };
+            return SuccessResponse<string>(presignUrl, "Created successfully");
         }
 
         [HttpGet("products/{id}")]
-        public async Task<BaseResponse<ProductDto>> GetProductDetail(int id)
+        public async Task<IActionResult> GetProductDetail(int id)
         {
             var data = await _productService.GetDetailAsync(id);
 
@@ -169,24 +148,15 @@ namespace fashion_shop.API.Controllers.Admin
                 throw new NotFoundException($"Not found product Id={id}");
             }
 
-            return new BaseResponse<ProductDto>()
-            {
-                StatusCode = HttpStatusCode.OK,
-                Message = "Get data successfully",
-                Data = data,
-            };
+            return SuccessResponse<ProductDto>(data, "Get data successfully");
         }
 
         [HttpDelete("products/{id}")]
-        public async Task<BaseResponse<string>> DeleteProduct(int id)
+        public async Task<IActionResult> DeleteProduct(int id)
         {
             await _productService.DeleteAsync(id);
 
-            return new BaseResponse<string>()
-            {
-                StatusCode = HttpStatusCode.OK,
-                Message = "Deleted data successfully",
-            };
+            return SuccessResponse<string>(string.Empty, "Deleted data successfully");
         }
     }
 }
