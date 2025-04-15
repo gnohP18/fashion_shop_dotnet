@@ -23,9 +23,9 @@ public class OrderRepository : IOrderRepository
 
     public IQueryable<Order> Queryable => _dbContext.Orders.AsQueryable();
 
-    public Task AddAsync(Order entity, CancellationToken cancellationToken = default)
+    public async Task AddAsync(Order entity, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        await _dbContext.AddAsync(entity, cancellationToken);
     }
 
     public void Delete(Order entity)

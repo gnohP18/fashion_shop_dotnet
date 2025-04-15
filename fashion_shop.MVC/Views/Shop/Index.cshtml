@@ -1,0 +1,91 @@
+@{
+    var categories = ViewBag.Categories as List<CategoryDto>;
+    var products = ViewBag.Products as List<ProductDto>;
+    var meta = ViewBag.Meta;
+}
+
+<section>
+    <div class="row">
+        <div class="col-md-3">
+            <div class="py-3">
+                <input type="text" class="form-control" placeholder="Search items">
+            </div>
+            <div class="bg-light rounded">
+                <h5>Danh mục</h5>
+                @if (categories is not null && categories.Count > 0)
+                {
+                    <div class="d-flex flex-column">
+
+                        @foreach (var category in categories)
+                        {
+                            <button type="button" class="btn btn-outline text-hover btn-search-by-category"
+                                data-category-slug="@category.Slug">
+                                @category.Name
+                            </button>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="row g-2">
+                @if (products is not null && products.Count > 0)
+                {
+                    <!-- Product Item -->
+                    @foreach (var product in products)
+                    {
+                        <div class="col-md-4">
+                            <div class="position-relative border p-3 rounded justify-content-between d-flex flex-column">
+                                <div class="flex-grow-1 jarallax-keep-img">
+                                    <img src="@product.ImageUrl" class="h-100 img-fluid jarallax-img" alt="@product.Name">
+                                </div>
+                                <div class="d-flex flex-column">
+                                    <a class="text-muted mb-1 mt-2"
+                                        href="/shop/detail/@Uri.EscapeDataString(product.Slug)">@product.Name</a>
+                                    <h6 class="fw-semibold">@product.CategoryName</h6>
+                                    <div>
+                                        <span class="text-danger fw-bold">@Function.FormatVnd(product.Price)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+            @if (meta is not null && products?.Count > 0)
+            {
+                <nav aria-label="Page navigation example" class="py-3">
+                    <ul class="pagination justify-content-center">
+
+                        <!-- Previous -->
+                        <li class="page-item @(meta?.CurrentPage == 1 ? "disabled" : "")">
+                            <a class="page-link" href="?page=@(meta?.CurrentPage - 1)" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+
+                        <!-- Page numbers -->
+                        @for (int i = 1; i <= meta?.LastPage; i++)
+                        {
+                            <li class="page-item @(i == meta.CurrentPage ? "active" : "")">
+                                <a class="page-link" href="?page=@i">@i</a>
+                            </li>
+                        }
+
+                        <!-- Next -->
+                        <li class="page-item @(meta?.CurrentPage == meta?.LastPage ? "disabled" : "")">
+                            <a class="page-link" href="?page=@(meta?.CurrentPage + 1)" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+
+                    </ul>
+                </nav>
+            }
+        </div>
+    </div>
+
+</section>
+@section Scripts {
+    <script src="~/js/shop/index.js"></script>
+}

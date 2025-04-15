@@ -10,6 +10,9 @@ using fashion_shop.Core.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using fashion_shop.Core.DTOs.Common;
 using Microsoft.Extensions.Options;
+using Npgsql.Replication;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Linq.Expressions;
 
 namespace fashion_shop.Infrastructure.Services;
 
@@ -67,11 +70,14 @@ public class ProductService : IProductService
                 x.Slug.ToLower() == request.KeySearch.ToLower());
         }
 
+        if (!string.IsNullOrWhiteSpace(request.CategorySlug))
+        {
+            query = query.Where(p => p.Category.Slug == request.CategorySlug.ToLower());
+        }
+
         var sortByField = !string.IsNullOrEmpty(request.SortBy) ? request.SortBy : PaginationConstant.DefaultSortKey;
 
-        query = request.Direction.ToUpper() == PaginationConstant.DefaultSortDirection
-            ? query.OrderByDescending(x => request.SortBy)
-            : query.OrderBy(x => request.SortBy);
+        query = OrderByCondition(query, sortByField, request.Direction.ToUpper() == PaginationConstant.DefaultSortDirection);
 
         query = query.Include(x => x.Category);
 
@@ -123,5 +129,32 @@ public class ProductService : IProductService
 
         _productRepository.Delete(product);
         await _productRepository.UnitOfWork.SaveChangesAsync();
+    }
+
+    private IQueryable<Product> OrderByCondition(IQueryable<Product> source, string field, bool isDescending)
+    {
+        return field.ToLower() switch
+        {
+            "id" => isDescending ? source.OrderByDescending(p => p.Id) : source.OrderBy(p => p.Id),
+            "created_at" => isDescending ? source.OrderByDescending(p => p.CreatedAt) : source.OrderBy(p => p.CreatedAt),
+            "price" => isDescending ? source.OrderByDescending(p => p.Price) : source.OrderBy(p => p.Price),
+            "name" => isDescending ? source.OrderByDescending(p => p.Name) : source.OrderBy(p => p.Name),
+            _ => source
+        };
+    }
+
+    public async Task<ProductDto?> GetDetailBySlugAsync(string slug)
+    {
+        return await _productRepository.Queryable.Select(p => new ProductDto()
+        {
+            Id = p.Id,
+            Name = p.Name,
+            Slug = p.Slug,
+            Price = p.Price,
+            ImageUrl = $"{_minioSettings.Endpoint}/{_minioSettings.BucketName}/{p.ImageUrl}",
+            CategoryId = p.CategoryId,
+            CategoryName = p.Category.Name,
+
+        }).FirstOrDefaultAsync(p => p.Slug == slug.ToLower());
     }
 }

@@ -22,4 +22,22 @@ $(document).ready(function () {
             }
         });
     });
+
+    $("#checkout_cart").on("click", function () {
+        const productRows = $(".product-row").length;
+        if (productRows > 0) {
+            $.ajax({
+                url: `/cart/checkout-cart`,
+                type: "POST",
+                success: function (response) {
+                    window.location.href = "/Cart/SuccessCheckout";
+                },
+                error: function () {
+                    // alert("Thêm vào giỏ hàng thất bại!");
+                }
+            });
+        } else {
+            window.location.href = "/shop/index"
+        }
+    })
 })

@@ -16,5 +16,15 @@ namespace fashion_shop.Core.Common
         {
             return $"{slug}-{DateTime.UtcNow.ToString("yyyyMMddHHmmssfff")}";
         }
+
+        /// <summary>
+        /// Format VietNam Dong
+        /// </summary>
+        /// <param name="amount">Money Amount</param>
+        /// <returns>Format Money</returns>
+        public static string FormatVnd(decimal amount)
+        {
+            return string.Format("{0:N0}₫", amount);
+        }
     }
 }

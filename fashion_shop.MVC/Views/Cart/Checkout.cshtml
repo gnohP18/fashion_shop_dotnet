@@ -50,7 +50,7 @@
                         @foreach (var item in cartItems)
                         {
                             total += item.Key.Price * item.Value;
-                            <tr>
+                            <tr class="product-row">
                                 <td>@item.Key.Name</td>
                                 <td>@item.Key.Description</td>
                                 <td>@item.Key.Price</td>
@@ -77,9 +77,12 @@
             <strong>Lưu ý:</strong> Vui lòng kiểm tra kỹ hoá đơn trước khi thanh toán.
         </p>
         <div class="text-center">
-            <a asp-action="SuccessCheckout" asp-controller="Cart"
-                class="btn btn-dark btn-outline-gray hvr-sweep-to-right dark-sweep"><i class="bi bi-printer me-1"></i>
-                Thanh toán</a>
+            <button id="checkout_cart"
+                class="btn btn-dark btn-outline-gray hvr-sweep-to-right dark-sweep"><i class="bi bi-credit-card-fill me-1"></i>
+                Thanh toán</button>
         </div>
     </div>
 </div>
+@section Scripts {
+    <script src="~/js/cart/cart.js"></script>
+}
