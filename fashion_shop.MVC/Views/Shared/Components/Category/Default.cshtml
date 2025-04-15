@@ -3,6 +3,8 @@
 <ul class="dropdown-menu fw-bold">
     @foreach (var category in Model)
     {
-        <li class="dropdown-item">@category.Name</li>
+        <li class="dropdown-item">
+            <a href="/shop/index?CategorySlug=@Uri.EscapeDataString(category.Slug)">@category.Name</a>
+        </li>
     }
 </ul>

@@ -23,6 +23,7 @@ namespace fashion_shop.Infrastructure.Extensions
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IMediaFileService, MediaFileService>();
             services.AddScoped<ICartService, CartService>();
+            services.AddScoped<IOrderService, OrderService>();
 
             return services;
         }
@@ -43,7 +44,7 @@ namespace fashion_shop.Infrastructure.Extensions
 
             services.AddDbContext<ApplicationDbContext>(options => options
                 .UseNpgsql(connectionString)
-                .UseSnakeCaseNamingConvention());
+                .UseSnakeCaseNamingConvention(), ServiceLifetime.Transient);
 
             var redisConnectionString = configuration.GetConnectionString("RedisConnection");
             if (!string.IsNullOrEmpty(redisConnectionString))

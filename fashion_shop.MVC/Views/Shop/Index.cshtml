@@ -35,7 +35,7 @@
                     @foreach (var product in products)
                     {
                         <div class="col-md-4">
-                            <div class="position-relative border p-3 rounded justify-content-between d-flex flex-column">
+                            <div class="position-relative border p-3 rounded justify-content-between d-flex flex-column h-100">
                                 <div class="flex-grow-1 jarallax-keep-img">
                                     <img src="@product.ImageUrl" class="h-100 img-fluid jarallax-img" alt="@product.Name">
                                 </div>
@@ -52,36 +52,8 @@
                     }
                 }
             </div>
-            @if (meta is not null && products?.Count > 0)
-            {
-                <nav aria-label="Page navigation example" class="py-3">
-                    <ul class="pagination justify-content-center">
+            @await Html.PartialAsync("Partials/_PaginationPartial", (object)ViewBag.Meta)
 
-                        <!-- Previous -->
-                        <li class="page-item @(meta?.CurrentPage == 1 ? "disabled" : "")">
-                            <a class="page-link" href="?page=@(meta?.CurrentPage - 1)" aria-label="Previous">
-                                <span aria-hidden="true">&laquo;</span>
-                            </a>
-                        </li>
-
-                        <!-- Page numbers -->
-                        @for (int i = 1; i <= meta?.LastPage; i++)
-                        {
-                            <li class="page-item @(i == meta.CurrentPage ? "active" : "")">
-                                <a class="page-link" href="?page=@i">@i</a>
-                            </li>
-                        }
-
-                        <!-- Next -->
-                        <li class="page-item @(meta?.CurrentPage == meta?.LastPage ? "disabled" : "")">
-                            <a class="page-link" href="?page=@(meta?.CurrentPage + 1)" aria-label="Next">
-                                <span aria-hidden="true">&raquo;</span>
-                            </a>
-                        </li>
-
-                    </ul>
-                </nav>
-            }
         </div>
     </div>
 

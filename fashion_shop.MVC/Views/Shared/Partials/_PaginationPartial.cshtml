@@ -1,0 +1,34 @@
+@{
+    var meta = ViewBag.Meta;
+}
+
+@if (meta is not null && meta.Total > 0)
+{
+    <nav aria-label="Page navigation example" class="py-3">
+        <ul class="pagination justify-content-center">
+
+            <!-- Previous -->
+            <li class="page-item @(meta?.CurrentPage == 1 ? "disabled" : "")">
+                <a class="page-link" href="?page=@(meta?.CurrentPage - 1)" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+
+            <!-- Page numbers -->
+            @for (int i = 1; i <= meta?.LastPage; i++)
+            {
+                <li class="page-item @(i == meta.CurrentPage ? "active" : "")">
+                    <a class="page-link" href="?page=@i">@i</a>
+                </li>
+            }
+
+            <!-- Next -->
+            <li class="page-item @(meta?.CurrentPage == meta?.LastPage ? "disabled" : "")">
+                <a class="page-link" href="?page=@(meta?.CurrentPage + 1)" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+
+        </ul>
+    </nav>
+}
