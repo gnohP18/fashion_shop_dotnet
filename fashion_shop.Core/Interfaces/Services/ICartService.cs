@@ -10,4 +10,5 @@ namespace fashion_shop.Core.Interfaces.Services;
 public interface ICartService
 {
     Task<Dictionary<ProductDto, int>> GetListAsync(Dictionary<int, int> cartItems);
+    Task<bool> CheckoutCartAsync(int userId, Dictionary<int, int> cartItems);
 }

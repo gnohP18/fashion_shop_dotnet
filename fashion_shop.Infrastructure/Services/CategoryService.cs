@@ -36,6 +36,7 @@ public class CategoryService : ICategoryService
         }
 
         var sortByField = !string.IsNullOrEmpty(request.SortBy) ? request.SortBy : PaginationConstant.DefaultSortKey;
+
         query = request.Direction.ToUpper() == PaginationConstant.DefaultSortDirection
             ? query.OrderByDescending(x => request.SortBy)
             : query.OrderBy(x => request.SortBy);

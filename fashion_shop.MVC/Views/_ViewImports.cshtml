@@ -1,3 +1,11 @@
 ﻿@using fashion_shop.MVC
 @using fashion_shop.MVC.Models
+@using fashion_shop.Core.DTOs.Requests.Admin
+@using fashion_shop.Core.DTOs.Responses.Admin
+@using fashion_shop.Core.DTOs.Responses
+@using fashion_shop.Core.Common
+@using Microsoft.AspNetCore.Identity
+@using fashion_shop.Core.Entities
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers

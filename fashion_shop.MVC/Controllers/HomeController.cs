@@ -14,6 +14,7 @@ public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
     private readonly IProductService _productService;
+    private readonly ICategoryService _categoryService;
     private readonly MinioSettings _minioSettings;
 
     public class HomeViewModel
@@ -21,42 +22,55 @@ public class HomeController : Controller
         public List<ProductDto> FeatureProducts { get; set; } = new List<ProductDto>();
     }
 
-    public HomeController(ILogger<HomeController> logger, IProductService productService, IOptions<MinioSettings> options)
+    public HomeController(
+        ILogger<HomeController> logger,
+        IProductService productService,
+        IOptions<MinioSettings> options,
+        ICategoryService categoryService)
     {
         _logger = logger;
         _productService = productService ?? throw new ArgumentNullException(nameof(productService));
         _minioSettings = options.Value;
+        _categoryService = categoryService;
     }
 
     public async Task<IActionResult> Index()
     {
+        // Category
+        var categoryGetParameter = new GetCategoryRequest();
+        var categories = (await _categoryService.GetListAsync(categoryGetParameter)).Data;
+
+        // Feature Product
         var featureProductParams = new GetProductRequest()
         {
-            Offset = 6,
+            Offset = 5,
             Page = 1,
             SortBy = "created_at",
             Direction = PaginationConstant.DefaultSortDirection
         };
 
-        var paginationData = (await _productService.GetListAsync(featureProductParams)).Data.ToList();
+        var paginationFeatureData = (await _productService.GetListAsync(featureProductParams)).Data.ToList();
 
-        var latestProductParams = new GetProductRequest()
+        // Collection Product
+        var categoryIds = categories.Select(c => c.Id).ToArray();
+
+        var random = new Random();
+
+        var randomCategoryCollectionId = categoryIds[random.Next(categoryIds.Length)];
+        var collectionProductParams = new GetProductRequest()
         {
-            Offset = 6,
-            Page = 1,
-            SortBy = "created_at",
-            Direction = PaginationConstant.DefaultSortDirection
+            CategorySlug = categories.First(c => c.Id == randomCategoryCollectionId).Slug,
+            Offset = 2
         };
+        var paginationCollectionData = (await _productService.GetListAsync(collectionProductParams)).Data;
 
-        var viewModel = new HomeViewModel
-        {
-            FeatureProducts = paginationData
-        };
+        ViewBag.FeatureProducts = paginationFeatureData;
+        ViewBag.CollectionProducts = paginationCollectionData;
 
-        return View(viewModel);
+        return View();
     }
 
-    
+
 
     public IActionResult Privacy()
     {

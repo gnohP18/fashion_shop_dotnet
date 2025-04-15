@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
 using fashion_shop.Core.Entities;
@@ -132,6 +133,49 @@ public class CartController : Controller
 
         return View();
     }
+
+    [HttpPost("checkout-cart")]
+    public async Task<IActionResult> CheckoutCart()
+    {
+        var cartCookie = Request.Cookies["Cart"];
+
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (userId == null)
+        {
+            return BadRequest("Not found user");
+        }
+
+        if (string.IsNullOrEmpty(cartCookie))
+        {
+            return BadRequest("Wrong Cookie");
+        }
+
+        var cart = JsonSerializer.Deserialize<List<CartItem>>(cartCookie);
+
+        if (cart?.Count > 0)
+        {
+            var resp = await _cartService.CheckoutCartAsync(Int32.Parse(userId), cart.ToDictionary(item => item.ProductId, item => item.Quantity));
+
+            if (resp)
+            {
+                Response.Cookies.Append("Cart", JsonSerializer.Serialize(new List<CartItem>()), new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = false,
+                    SameSite = SameSiteMode.Lax,
+                    Expires = DateTimeOffset.UtcNow.AddDays(30)
+                });
+            }
+        }
+        else
+        {
+            return BadRequest("Cart empty");
+        }
+
+        return BadRequest();
+    }
+
 
     [HttpGet("success-checkout")]
     public IActionResult SuccessCheckout()
