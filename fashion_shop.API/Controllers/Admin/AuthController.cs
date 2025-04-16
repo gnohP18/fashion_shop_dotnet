@@ -8,6 +8,8 @@ using fashion_shop.Core.Interfaces.Services;
 using fashion_shop.Core.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
+using Microsoft.AspNetCore.Identity;
+using fashion_shop.Core.Entities;
 
 namespace fashion_shop.API.Controllers.Admin
 {
@@ -19,16 +21,19 @@ namespace fashion_shop.API.Controllers.Admin
         private readonly IAdminAuthService _adminAuthService;
         private readonly ITokenService _tokenService;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly UserManager<User> _userManager;
 
         public AuthController(
             IAdminAuthService adminAuthService,
             IHttpContextAccessor httpContextAccessor,
             ITokenService tokenService,
-            ILogger<AuthController> logger) : base(logger)
+            ILogger<AuthController> logger,
+            UserManager<User> userManager) : base(logger)
         {
             _adminAuthService = adminAuthService ?? throw new ArgumentNullException(nameof(adminAuthService));
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             _tokenService = tokenService ?? throw new ArgumentNullException(nameof(tokenService));
+            _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         }
 
         [HttpPost("login")]
@@ -86,5 +91,34 @@ namespace fashion_shop.API.Controllers.Admin
 
             return SuccessResponse<AdminLoginResponse>(data, "Refresh login successfully");
         }
+
+        [HttpPost("test-create-user")]
+        public async Task<IActionResult> CreateUserByAdmin([FromBody] CreateUserByAdminRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ErrorResponse<string>("Validation Failed");
+            }
+
+            var existingUser = await _userManager.FindByEmailAsync(request.Email);
+
+            if (existingUser == null)
+            {
+                var newUser = new User
+                {
+                    UserName = request.Username,
+                    Email = request.Email,
+                };
+
+                var result = await _userManager.CreateAsync(newUser, request.Password);
+                if (result.Succeeded)
+                {
+                    await _userManager.AddToRoleAsync(newUser, "User");
+                }
+            }
+
+            return SuccessResponse<string>(string.Empty, $"Created user with username={request.Username} password={request.Password} successfully");
+        }
+
     }
 }

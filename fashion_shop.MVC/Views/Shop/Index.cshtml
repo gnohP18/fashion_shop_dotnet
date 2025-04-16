@@ -1,6 +1,7 @@
 @{
     var categories = ViewBag.Categories as List<CategoryDto>;
     var products = ViewBag.Products as List<ProductDto>;
+    var currentCategorySlug = Context.Request.Query["categorySlug"].ToString();
     var meta = ViewBag.Meta;
 }
 
@@ -18,8 +19,12 @@
 
                         @foreach (var category in categories)
                         {
-                            <button type="button" class="btn btn-outline text-hover btn-search-by-category"
-                                data-category-slug="@category.Slug">
+                            var isActive = category.Slug == currentCategorySlug;
+                            var btnClass = isActive
+                            ? "btn btn-danger text-white fw-semibold"
+                            : "btn btn-outline text-hover btn-search-by-category";
+
+                            <button type="button" class="@btnClass" data-category-slug="@category.Slug">
                                 @category.Name
                             </button>
                         }

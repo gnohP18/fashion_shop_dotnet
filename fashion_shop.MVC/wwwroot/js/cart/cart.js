@@ -1,4 +1,23 @@
 $(document).ready(function () {
+    const calTotal = () => {
+        let total = 0;
+
+        const productRows = $(".product-row");
+
+        productRows.each((index, el) => {
+            const price = parseFloat($(el).find('input[name="product_price"]').val());
+            const quantity = parseInt($(el).find('input[name="product_quantity"]').val());
+
+            if (!isNaN(price) && !isNaN(quantity)) {
+                total += price * quantity;
+            }
+        });
+
+        $("#total").text(total.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }));
+
+        console.log(productRows.lenght);
+    }
+
     $(".remove-item-cart-btn").on("click", function (e) {
         e.preventDefault();
 
@@ -11,7 +30,6 @@ $(document).ready(function () {
                 $(`#product_row_${productId}`).remove();
 
                 const remainingItems = $(".product-row").length;
-                console.log(remainingItems);
 
                 if (remainingItems === 0) {
                     $("#checkoutBtn").prop("disabled", true);
@@ -40,4 +58,6 @@ $(document).ready(function () {
             window.location.href = "/shop/index"
         }
     })
+
+    calTotal();
 })

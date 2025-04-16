@@ -7,13 +7,6 @@ using fashion_shop.Core.DTOs.Common;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
-// Add services to the container.
-// var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-
-// services.AddDbContext<ApplicationDbContext>(options => options
-//                 .UseNpgsql(connectionString)
-//                 .UseSnakeCaseNamingConvention());
-
 //------------------------------ Service & Repo & Infra ----------------------------------//
 services.AddInfrastructure(builder.Configuration);
 services.AddServices();
@@ -30,6 +23,12 @@ services.AddDatabaseDeveloperPageExceptionFilter();
 services.AddIdentity<User, Role>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
+
+services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Identity/Account/Login"; // Đường dẫn đến trang login
+    options.AccessDeniedPath = "/Identity/Account/AccessDenied"; // Nếu không đủ quyền
+});
 
 
 services.AddControllersWithViews();

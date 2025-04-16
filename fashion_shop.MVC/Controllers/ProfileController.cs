@@ -37,11 +37,33 @@ namespace fashion_shop.MVC.Controllers
             return View();
         }
 
+        [HttpGet("order-detail")]
+        public async Task<IActionResult> OrderDetail(int id)
+        {
+            var order = await _orderService.GetOrderAsync(id);
+
+            if (order is null)
+            {
+                return RedirectToAction("History", "Profile");
+            }
+
+            var orderDetail = await _orderService.GetOrderDetailAsync(order);
+            var user = await _userManager.GetUserAsync(User);
+
+            ViewBag.OrderDetail = orderDetail;
+            ViewBag.Profile = await _userManager.GetUserAsync(User);
+
+            return View();
+        }
+
         [HttpGet("history")]
         public async Task<IActionResult> History(GetHistoryOrderRequest request)
         {
             var user = await _userManager.GetUserAsync(User);
-
+            if (user is null)
+            {
+                return RedirectToAction("Indetity", "Login");
+            }
             var paginationOrderData = await _orderService.GetHistoryOrderAsync(user.Id, request);
 
             ViewBag.OrderData = paginationOrderData.Data;

@@ -10,6 +10,8 @@ namespace fashion_shop.Core.Interfaces.Services
 {
     public interface IOrderService
     {
+        Task<OrderDto?> GetOrderAsync(int orderId);
         Task<PaginationData<OrderDto>> GetHistoryOrderAsync(int userId, GetHistoryOrderRequest request);
+        Task<OrderDetailResponse> GetOrderDetailAsync(OrderDto order);
     }
 }
