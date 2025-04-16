@@ -80,7 +80,7 @@ public class CartController : Controller
         // Update Cart
         var cartData = JsonSerializer.Serialize(cart);
 
-        Response.Cookies.Append("Cart", cartData, new CookieOptions
+        Response.Cookies.Append(GetCartId(), cartData, new CookieOptions
         {
             HttpOnly = true,
             Secure = false,
@@ -106,7 +106,7 @@ public class CartController : Controller
 
         var cartData = JsonSerializer.Serialize(cart);
 
-        Response.Cookies.Append("Cart", cartData, new CookieOptions
+        Response.Cookies.Append(GetCartId(), cartData, new CookieOptions
         {
             HttpOnly = true,
             Secure = false,
@@ -137,9 +137,11 @@ public class CartController : Controller
     [HttpPost("checkout-cart")]
     public async Task<IActionResult> CheckoutCart()
     {
-        var cartCookie = Request.Cookies["Cart"];
-
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        var cartId = $"Cart_{userId}";
+
+        var cartCookie = Request.Cookies[cartId];
 
         if (userId == null)
         {
@@ -159,7 +161,7 @@ public class CartController : Controller
 
             if (resp)
             {
-                Response.Cookies.Append("Cart", JsonSerializer.Serialize(new List<CartItem>()), new CookieOptions
+                Response.Cookies.Append(cartId, JsonSerializer.Serialize(new List<CartItem>()), new CookieOptions
                 {
                     HttpOnly = true,
                     Secure = false,
@@ -192,7 +194,10 @@ public class CartController : Controller
 
     private List<CartItem> GetCart()
     {
-        var cartCookie = Request.Cookies["Cart"];
+        var cartId = GetCartId();
+
+        var cartCookie = Request.Cookies[cartId];
+
         var cart = new List<CartItem>();
 
         if (!string.IsNullOrEmpty(cartCookie))
@@ -203,7 +208,7 @@ public class CartController : Controller
         {
             var cartData = JsonSerializer.Serialize(cart);
 
-            Response.Cookies.Append("Cart", cartData, new CookieOptions
+            Response.Cookies.Append(cartId, cartData, new CookieOptions
             {
                 HttpOnly = true,
                 Secure = false,
@@ -213,5 +218,12 @@ public class CartController : Controller
         }
 
         return cart ?? new List<CartItem>();
+    }
+
+    private string GetCartId()
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        return $"Cart_{userId}";
     }
 }

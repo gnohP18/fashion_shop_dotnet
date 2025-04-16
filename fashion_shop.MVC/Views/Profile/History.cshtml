@@ -15,6 +15,7 @@
                         <th scope="col">Thành tiền</th>
                         <th scope="col">Ghi chú</th>
                         <th scope="col">Ngày tạo</th>
+                        <th scope="col">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -27,6 +28,10 @@
                                 <td>@order.TotalAmount</td>
                                 <td>@order.Note</td>
                                 <td>@order.CreatedAt</td>
+                                <td>
+                                    <a href="/profile/order-detail?Id=@Uri.EscapeDataString(order.Id.ToString())"
+                                        class="w-100"><i class="bi bi-arrow-right"></i></a>
+                                </td>
                             </tr>
                         }
                     }

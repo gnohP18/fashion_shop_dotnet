@@ -34,6 +34,7 @@ namespace fashion_shop.Infrastructure.Extensions
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IMediaFileRepository, MediaFileRepository>();
             services.AddScoped<IOrderRepository, OrderRepository>();
+            services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
 
             return services;
         }

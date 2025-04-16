@@ -1,6 +1,6 @@
 @{
-    string currentController = ViewContext.RouteData.Values["controller"]?.ToString();
-    string currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    string currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? string.Empty;
+    string currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? string.Empty;
 }
 
 <div class="card p-3">

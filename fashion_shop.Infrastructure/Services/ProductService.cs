@@ -20,6 +20,7 @@ public class ProductService : IProductService
 {
     private readonly IProductRepository _productRepository;
     private readonly ICategoryRepository _categoryRepository;
+    private readonly IOrderDetailRepository _orderDetailRepository;
     private readonly IMapper _mapper;
     private readonly MinioSettings _minioSettings;
 
@@ -27,12 +28,14 @@ public class ProductService : IProductService
         IProductRepository productRepository,
         IMapper mapper,
         IOptions<MinioSettings> options,
-        ICategoryRepository categoryRepository)
+        ICategoryRepository categoryRepository,
+        IOrderDetailRepository orderDetailRepository)
     {
         _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(_mapper));
         _categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
         _minioSettings = options.Value ?? throw new ArgumentNullException(nameof(options));
+        _orderDetailRepository = orderDetailRepository ?? throw new ArgumentNullException(nameof(orderDetailRepository));
     }
 
     public async Task<CreateProductResponse> CreateAsync(CreateProductRequest request)
@@ -127,8 +130,16 @@ public class ProductService : IProductService
             throw new NotFoundException($"Not found product id={id}");
         }
 
-        _productRepository.Delete(product);
-        await _productRepository.UnitOfWork.SaveChangesAsync();
+        var canDelete = true;
+
+        // Check if product have
+        canDelete = !await _orderDetailRepository.Queryable.AsNoTracking().AnyAsync(p => p.ProductId == id);
+
+        if (canDelete)
+        {
+            _productRepository.Delete(product);
+            await _productRepository.UnitOfWork.SaveChangesAsync();
+        }
     }
 
     private IQueryable<Product> OrderByCondition(IQueryable<Product> source, string field, bool isDescending)

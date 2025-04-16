@@ -25,9 +25,9 @@ public class MediaFileController : APIController<MediaFileController>
         {
             return ErrorResponse<string>("Validation Failed");
         }
-        System.Console.WriteLine(payload.Key);
+
         var s3Key = Uri.UnescapeDataString(payload.Records[0].S3.Object.Key);
-        System.Console.WriteLine(s3Key);
+
 
         await _mediaFileService.UpdateStatusMediaFileAsync(s3Key);
 

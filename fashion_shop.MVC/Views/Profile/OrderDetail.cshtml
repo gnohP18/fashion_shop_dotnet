@@ -1,0 +1,80 @@
+@using fashion_shop.Core.DTOs.Responses.User
+@{
+    var orderDetail = ViewBag.OrderDetail as OrderDetailResponse;
+    var profile = ViewBag.Profile as User;
+}
+<div class="container my-5">
+    <div class="card shadow rounded p-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <h2 class="fw-bold">Hoá đơn</h2>
+            <div class="text-end">
+                <strong>Hoá đơn:</strong> @orderDetail?.OrderId<br />
+                <strong>Ngày:</strong> @orderDetail?.CreatedAt
+            </div>
+        </div>
+        <hr />
+        <div class="row">
+            <div class="col-md-6">
+                <h5 class="fw-bold">Bên xuất hoá đơn:</h5>
+                <p class="mb-0">Fashion Shop</p>
+                <p class="mb-0">Tam Ky</p>
+                <p class="mb-0">Quang Nam</p>
+                <p class="mb-0">Viet Nam</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <h5 class="fw-bold">Bên thanh toán</h5>
+                <p class="mb-0">@profile?.UserName</p>
+                <p class="mb-0">@profile?.PhoneNumber</p>
+                <p class="mb-0">@profile?.Email</p>
+            </div>
+        </div>
+
+        @if (orderDetail?.OrderDetail is not null && orderDetail.OrderDetail?.Count() > 0)
+        {
+            <div class="table-responsive mt-4">
+                <table class="table table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Sản phẩm</th>
+                            <th>Mô tả</th>
+                            <th>Giá</th>
+                            <th>Số lượng</th>
+                            <th>Thành tiền(đ)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            var total = 0;
+                        }
+                        @foreach (var item in orderDetail.OrderDetail)
+                        {
+                            total += item.Price * item.Quantity;
+                            <tr class="product-row">
+                                <td class="row">
+                                    <div class="col-3">
+                                        <img src="@item.ImageUrl" alt="" srcset="">
+                                    </div>
+                                    <div class="col-9">@item.ProductName</div>
+                                </td>
+                                <td></td>
+                                <td>@item.Price</td>
+                                <td>@item.Quantity</td>
+                                <td>đ @Function.FormatVnd(item.Price * item.Quantity)</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="4" class="text-end">Thành tiền:</th>
+                            <td>đ @Function.FormatVnd(total)</td>
+                        </tr>
+                        <tr>
+                            <th colspan="4" class="text-end fw-bold">Tổng cộng:</th>
+                            <td class="fw-bold">đ @Function.FormatVnd(total)</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        }
+    </div>
+</div>

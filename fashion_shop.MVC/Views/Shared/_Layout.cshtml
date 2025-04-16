@@ -169,7 +169,7 @@
             </div>
         </div> *@
         <nav id="header-nav" class="navbar navbar-expand-lg">
-            <div class="container-lg">
+            <div class="container">
                 <a class="navbar-brand" asp-action="Index" asp-controller="Home">
                     <h3>Fashion Shop</h3>
                 </a>
@@ -184,8 +184,7 @@
                     <div class="offcanvas-body">
                         <ul id="navbar" class="navbar-nav fw-bold justify-content-end align-items-center flex-grow-1">
                             <li class="nav-item dropdown">
-                                <a class="nav-link me-5" asp-action="Index" asp-controller="Home"
-                                    aria-expanded="false">Trang chủ</a>
+                                <a class="nav-link me-5" asp-action="Index" asp-controller="Home">Trang chủ</a>
                             </li>
                             <li class="nav-item dropdown">
                                 <a class="nav-link me-5 active dropdown-toggle border-0" href="#"
@@ -193,7 +192,7 @@
                                 @await Component.InvokeAsync("Category")
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link me-5" asp-action="Index" asp-controller="Shop">Shop</a>
+                                <a class="nav-link me-5 text-center" asp-action="Index" asp-controller="Shop">Shop</a>
                             </li>
                         </ul>
                     </div>
@@ -203,16 +202,16 @@
                         @if (SignInManager.IsSignedIn(User))
                         {
                             <li class="pe-3">
-                                <a asp-action="Index" asp-controller="Profile" class="border-0">
-                                    <svg class="user" width="24" height="24">
-                                        <use xlink:href="#user"></use>
+                                <a asp-action="Index" asp-controller="Cart" class="border-0">
+                                    <svg class="shopping-cart" width="24" height="24">
+                                        <use xlink:href="#shopping-cart"></use>
                                     </svg>
                                 </a>
                             </li>
                             <li class="pe-3">
-                                <a asp-action="Index" asp-controller="Cart" class="border-0">
-                                    <svg class="shopping-cart" width="24" height="24">
-                                        <use xlink:href="#shopping-cart"></use>
+                                <a asp-action="Index" asp-controller="Profile" class="border-0">
+                                    <svg class="user" width="24" height="24">
+                                        <use xlink:href="#user"></use>
                                     </svg>
                                 </a>
                             </li>
@@ -232,7 +231,7 @@
             </div>
         </nav>
     </header>
-    <main class="container-lg flex-grow-1">
+    <main class="container flex-grow-1">
         @RenderBody()
     </main>
 
