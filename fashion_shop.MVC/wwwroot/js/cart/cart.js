@@ -14,8 +14,6 @@ $(document).ready(function () {
         });
 
         $("#total").text(total.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }));
-
-        console.log(productRows.lenght);
     }
 
     $(".remove-item-cart-btn").on("click", function (e) {

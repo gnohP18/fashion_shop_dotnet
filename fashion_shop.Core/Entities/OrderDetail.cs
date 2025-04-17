@@ -13,6 +13,9 @@ public class OrderDetail : BaseEntity
     public int ProductId { get; set; }
     public Product Product { get; set; } = default!;
 
+    public int ProductItemId { get; set; }
+    public ProductItem ProductItem { get; set; } = default!;
+
     public string ProductName { get; set; } = default!;
     public int Quantity { get; set; }
     public int Price { get; set; }

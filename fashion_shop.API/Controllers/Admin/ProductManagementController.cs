@@ -60,7 +60,7 @@ namespace fashion_shop.API.Controllers.Admin
         }
 
         [HttpGet("products")]
-        public async Task<PaginationData<ProductDto>> GetProductAsync([FromQuery] GetProductRequest request)
+        public async Task<PaginationData<BasicProductDto>> GetProductAsync([FromQuery] GetProductRequest request)
         {
             return await _productService.GetListAsync(request);
         }

@@ -40,6 +40,6 @@ public class ProductRepository : IProductRepository
 
     public void Update(Product entity)
     {
-        throw new NotImplementedException();
+        _dbContext.Products.Update(entity);
     }
 }

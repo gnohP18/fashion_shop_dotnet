@@ -167,6 +167,12 @@ namespace fashion_shop.Infrastructure.Migrations
                         .HasColumnName("created_at")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -226,6 +232,12 @@ namespace fashion_shop.Infrastructure.Migrations
                         .HasColumnType("character varying(255)")
                         .HasColumnName("file_name");
 
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
                     b.Property<bool>("IsUpload")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
@@ -246,6 +258,10 @@ namespace fashion_shop.Infrastructure.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
                         .HasColumnName("s3key");
+
+                    b.Property<long>("Size")
+                        .HasColumnType("bigint")
+                        .HasColumnName("size");
 
                     b.Property<DateTimeOffset?>("UpdatedAt")
                         .ValueGeneratedOnUpdate()
@@ -273,13 +289,23 @@ namespace fashion_shop.Infrastructure.Migrations
                         .HasColumnName("created_at")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
                     b.Property<string>("Note")
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
                         .HasColumnName("note");
 
-                    b.Property<int>("TotalAmount")
+                    b.Property<int>("OrderStatus")
                         .HasColumnType("integer")
+                        .HasColumnName("order_status");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasColumnType("decimal(18,2)")
                         .HasColumnName("total_amount");
 
                     b.Property<DateTimeOffset?>("UpdatedAt")
@@ -315,6 +341,12 @@ namespace fashion_shop.Infrastructure.Migrations
                         .HasColumnName("created_at")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
                     b.Property<int>("OrderId")
                         .HasColumnType("integer")
                         .HasColumnName("order_id");
@@ -326,6 +358,10 @@ namespace fashion_shop.Infrastructure.Migrations
                     b.Property<int>("ProductId")
                         .HasColumnType("integer")
                         .HasColumnName("product_id");
+
+                    b.Property<int>("ProductItemId")
+                        .HasColumnType("integer")
+                        .HasColumnName("product_item_id");
 
                     b.Property<string>("ProductName")
                         .IsRequired()
@@ -348,11 +384,107 @@ namespace fashion_shop.Infrastructure.Migrations
                     b.HasIndex("ProductId")
                         .HasDatabaseName("ix_order_details_product_id");
 
-                    b.HasIndex("OrderId", "ProductId")
+                    b.HasIndex("ProductItemId")
+                        .HasDatabaseName("ix_order_details_product_item_id");
+
+                    b.HasIndex("OrderId", "ProductId", "ProductItemId")
                         .IsUnique()
-                        .HasDatabaseName("ix_order_details_order_id_product_id");
+                        .HasDatabaseName("ix_order_details_order_id_product_id_product_item_id");
 
                     b.ToTable("order_details", (string)null);
+                });
+
+            modelBuilder.Entity("fashion_shop.Core.Entities.PaymentTransaction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasDefaultValue("VND")
+                        .HasColumnName("currency");
+
+                    b.Property<string>("FailReason")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("fail_reason");
+
+                    b.Property<bool>("IpnVerified")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("ipn_verified");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
+                    b.Property<int>("Method")
+                        .HasMaxLength(50)
+                        .HasColumnType("integer")
+                        .HasColumnName("method");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("integer")
+                        .HasColumnName("order_id");
+
+                    b.Property<DateTime?>("PaymentTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("payment_time");
+
+                    b.Property<string>("ProviderTransactionId")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("provider_transaction_id");
+
+                    b.Property<string>("RawResponse")
+                        .HasColumnType("text")
+                        .HasColumnName("raw_response");
+
+                    b.Property<string>("Signature")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)")
+                        .HasColumnName("signature");
+
+                    b.Property<int>("Status")
+                        .HasMaxLength(50)
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("total_amount");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .ValueGeneratedOnUpdate()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_payment_transactions");
+
+                    b.HasIndex("OrderId")
+                        .HasDatabaseName("ix_payment_transactions_order_id");
+
+                    b.HasIndex("ProviderTransactionId")
+                        .HasDatabaseName("ix_payment_transactions_provider_transaction_id");
+
+                    b.ToTable("payment_transactions", (string)null);
                 });
 
             modelBuilder.Entity("fashion_shop.Core.Entities.Product", b =>
@@ -384,6 +516,18 @@ namespace fashion_shop.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)")
                         .HasColumnName("image_url");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsVariant")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_variant");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -419,6 +563,115 @@ namespace fashion_shop.Infrastructure.Migrations
                     b.ToTable("products", (string)null);
                 });
 
+            modelBuilder.Entity("fashion_shop.Core.Entities.ProductItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("code");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("text")
+                        .HasColumnName("image_url");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
+                    b.Property<int>("Price")
+                        .HasColumnType("integer")
+                        .HasColumnName("price");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("integer")
+                        .HasColumnName("product_id");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer")
+                        .HasColumnName("quantity");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .ValueGeneratedOnUpdate()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_product_items");
+
+                    b.HasIndex("ProductId")
+                        .HasDatabaseName("ix_product_items_product_id");
+
+                    b.ToTable("product_items", (string)null);
+                });
+
+            modelBuilder.Entity("fashion_shop.Core.Entities.ProductVariant", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("name");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("integer")
+                        .HasColumnName("priority");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("integer")
+                        .HasColumnName("product_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .ValueGeneratedOnUpdate()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_product_variants");
+
+                    b.HasIndex("Priority")
+                        .HasDatabaseName("ix_product_variants_priority");
+
+                    b.HasIndex("ProductId")
+                        .HasDatabaseName("ix_product_variants_product_id");
+
+                    b.ToTable("product_variants", (string)null);
+                });
+
             modelBuilder.Entity("fashion_shop.Core.Entities.Role", b =>
                 {
                     b.Property<int>("Id")
@@ -451,6 +704,55 @@ namespace fashion_shop.Infrastructure.Migrations
                         .HasDatabaseName("RoleNameIndex");
 
                     b.ToTable("roles", (string)null);
+                });
+
+            modelBuilder.Entity("fashion_shop.Core.Entities.Setting", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("DefaultValue")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("default_value");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("name");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .ValueGeneratedOnUpdate()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("value");
+
+                    b.HasKey("Id")
+                        .HasName("pk_setting");
+
+                    b.ToTable("setting", (string)null);
                 });
 
             modelBuilder.Entity("fashion_shop.Core.Entities.User", b =>
@@ -534,6 +836,57 @@ namespace fashion_shop.Infrastructure.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("users", (string)null);
+                });
+
+            modelBuilder.Entity("fashion_shop.Core.Entities.Variant", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("code");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
+                    b.Property<int>("ProductVariantId")
+                        .HasColumnType("integer")
+                        .HasColumnName("product_variant_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .ValueGeneratedOnUpdate()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("value");
+
+                    b.HasKey("Id")
+                        .HasName("pk_variants");
+
+                    b.HasIndex("ProductVariantId")
+                        .HasDatabaseName("ix_variants_product_variant_id");
+
+                    b.ToTable("variants", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -621,9 +974,30 @@ namespace fashion_shop.Infrastructure.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_order_details_products_product_id");
 
+                    b.HasOne("fashion_shop.Core.Entities.ProductItem", "ProductItem")
+                        .WithMany("OrderDetails")
+                        .HasForeignKey("ProductItemId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .IsRequired()
+                        .HasConstraintName("fk_order_details_product_item_product_item_id");
+
                     b.Navigation("Order");
 
                     b.Navigation("Product");
+
+                    b.Navigation("ProductItem");
+                });
+
+            modelBuilder.Entity("fashion_shop.Core.Entities.PaymentTransaction", b =>
+                {
+                    b.HasOne("fashion_shop.Core.Entities.Order", "Order")
+                        .WithMany("PaymentTransactions")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_payment_transactions_orders_order_id");
+
+                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("fashion_shop.Core.Entities.Product", b =>
@@ -638,6 +1012,42 @@ namespace fashion_shop.Infrastructure.Migrations
                     b.Navigation("Category");
                 });
 
+            modelBuilder.Entity("fashion_shop.Core.Entities.ProductItem", b =>
+                {
+                    b.HasOne("fashion_shop.Core.Entities.Product", "Product")
+                        .WithMany("ProductItems")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_product_items_products_product_id");
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("fashion_shop.Core.Entities.ProductVariant", b =>
+                {
+                    b.HasOne("fashion_shop.Core.Entities.Product", "Product")
+                        .WithMany("ProductVariants")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_product_variants_products_product_id");
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("fashion_shop.Core.Entities.Variant", b =>
+                {
+                    b.HasOne("fashion_shop.Core.Entities.ProductVariant", "ProductVariant")
+                        .WithMany("Variants")
+                        .HasForeignKey("ProductVariantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_variants_product_variants_product_variant_id");
+
+                    b.Navigation("ProductVariant");
+                });
+
             modelBuilder.Entity("fashion_shop.Core.Entities.Category", b =>
                 {
                     b.Navigation("Products");
@@ -646,11 +1056,27 @@ namespace fashion_shop.Infrastructure.Migrations
             modelBuilder.Entity("fashion_shop.Core.Entities.Order", b =>
                 {
                     b.Navigation("OrderDetails");
+
+                    b.Navigation("PaymentTransactions");
                 });
 
             modelBuilder.Entity("fashion_shop.Core.Entities.Product", b =>
                 {
                     b.Navigation("OrderDetails");
+
+                    b.Navigation("ProductItems");
+
+                    b.Navigation("ProductVariants");
+                });
+
+            modelBuilder.Entity("fashion_shop.Core.Entities.ProductItem", b =>
+                {
+                    b.Navigation("OrderDetails");
+                });
+
+            modelBuilder.Entity("fashion_shop.Core.Entities.ProductVariant", b =>
+                {
+                    b.Navigation("Variants");
                 });
 
             modelBuilder.Entity("fashion_shop.Core.Entities.User", b =>

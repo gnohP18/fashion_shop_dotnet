@@ -12,10 +12,14 @@ public class CreateProductRequest
     [MinLength(3, ErrorMessage = "Slug must be at least 3 characters")]
     public string Slug { get; set; } = default!;
 
-    [Required(ErrorMessage = "Slug is required")]
+    [Required(ErrorMessage = "Price is required")]
     public int Price { get; set; }
 
     public string? ImageUrl { get; set; }
     public string? Description { get; set; }
     public int CategoryId { get; set; }
+    public bool IsVariant { get; set; }
+
+    public List<CreateProductVariantRequest> ProductVariants { get; set; } = new List<CreateProductVariantRequest>();
+    public List<CreateVariantRequest> Variants { get; set; } = new List<CreateVariantRequest>();
 }

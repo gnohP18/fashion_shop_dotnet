@@ -164,14 +164,15 @@ namespace fashion_shop.Infrastructure.Services
                     {
                         throw new NotFoundException($"Not Found Product Id={objectId}");
                     }
-
+                    // System.Console.WriteLine(imageUrl);
                     product.ImageUrl = imageUrl;
+                    _productRepository.Update(product);
+                    await _productRepository.UnitOfWork.SaveChangesAsync();
 
                     break;
                 default:
                     throw new NotSupportedException($"ObjectType '{objectType}' is not supported.");
             }
-
         }
     }
 }

@@ -14,6 +14,7 @@ public class ProductMapper : Profile
     public ProductMapper()
     {
         CreateMap<CreateProductRequest, Product>();
+        CreateMap<Product, BasicProductDto>();
         CreateMap<Product, CreateProductResponse>()
             .ForMember(
                 dest => dest.Category,

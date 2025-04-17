@@ -13,14 +13,20 @@ public class OrderConfiguration : ConfigurationEntity<Order>
 
         builder.ToTable("orders");
 
+        builder.Property(p => p.TotalAmount)
+               .HasColumnType("decimal(18,2)")
+               .IsRequired();
+
         builder.Property(p => p.Note)
                .HasMaxLength(255)
                .IsRequired(false);
 
-        builder.Property(p => p.TotalAmount);
-
         builder.HasOne(p => p.User)
                 .WithMany(p => p.Orders)
                 .HasForeignKey(p => p.UserId);
+
+        builder.HasMany(o => o.PaymentTransactions)
+               .WithOne(pt => pt.Order)
+               .HasForeignKey(pt => pt.OrderId);
     }
 }

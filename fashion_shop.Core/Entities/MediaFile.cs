@@ -11,6 +11,7 @@ public class MediaFile : BaseEntity
     public string FileExtension { get; set; } = default!;
     public string ContentType { get; set; } = default!;
     public string ObjectType { get; set; } = default!;
+    public long Size { get; set; }
     public int ObjectId { get; set; }
     public string? S3Key { get; set; }
     public bool IsUpload { get; set; } = false;
