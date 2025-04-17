@@ -15,20 +15,76 @@ public static class ProductCategorySeeder
         var tshirtCategory = new CreateCategoryRequest { Name = "T-Shirt", Slug = "t-shirt" };
         var hatCategory = new CreateCategoryRequest { Name = "Hat", Slug = "hat" };
 
-        var res1 = await serviceCategory.CreateAsync(tshirtCategory);
-        var res2 = await serviceCategory.CreateAsync(hatCategory);
+        var category1 = await serviceCategory.CreateAsync(tshirtCategory);
+        var category2 = await serviceCategory.CreateAsync(hatCategory);
+
+        // product2
+        var productVariants1 = new List<CreateProductVariantRequest> {
+            new CreateProductVariantRequest { Name = "Color", Priority = 1 },
+            new CreateProductVariantRequest { Name = "Size", Priority = 2 },
+            new CreateProductVariantRequest { Name = "Texture", Priority = 3 },
+        };
+
+        var variants1 = new List<CreateVariantRequest>(){
+            // product2 -> product_variant1
+            new CreateVariantRequest { Priority = 1, Value = "Blue"},
+            new CreateVariantRequest { Priority = 1, Value = "Black"},
+            new CreateVariantRequest { Priority = 1, Value = "White"},
+            // product2 -> product_variant2
+            new CreateVariantRequest { Priority = 1, Value = "S"},
+            new CreateVariantRequest { Priority = 1, Value = "M"},
+            new CreateVariantRequest { Priority = 1, Value = "L"},
+            // product2 -> product_variant3
+            new CreateVariantRequest { Priority = 1, Value = "Cotton"},
+            new CreateVariantRequest { Priority = 1, Value = "Wool"},
+            new CreateVariantRequest { Priority = 1, Value = "Silk"}
+        };
 
         // Seed Products
         var tshirtProducts = new List<CreateProductRequest>
         {
-            new CreateProductRequest { Name = "Classic Tee", Slug = "classic-tee", Price = 400000, ImageUrl = "classic.jpg", Description = "A classic t-shirt", CategoryId = res1.Id },
-            new CreateProductRequest { Name = "Graphic Tee", Slug = "graphic-tee", Price = 203000, ImageUrl = "graphic.jpg", Description = "A graphic t-shirt", CategoryId = res1.Id }
+            new CreateProductRequest {
+                Name = "Classic Tee",
+                Slug = "classic-tee",
+                Price = 400000,
+                Description = "A classic t-shirt",
+                ImageUrl = "",
+                CategoryId = category1.Id,
+                IsVariant = false,
+            },
+            new CreateProductRequest {
+                Name = "Graphic Tee",
+                Slug = "graphic-tee",
+                Price = 203000,
+                Description = "A graphic t-shirt",
+                ImageUrl = "",
+                CategoryId = category1.Id,
+                IsVariant = false,
+                // ProductVariants = productVariants1,
+                // Variants = variants1
+            }
         };
 
         var hatProducts = new List<CreateProductRequest>
         {
-            new CreateProductRequest { Name = "Baseball Cap", Slug = "baseball-cap", Price = 245000, ImageUrl = "cap.jpg", Description = "A cool cap", CategoryId = res2.Id},
-            new CreateProductRequest { Name = "Beanie", Slug = "beanie", Price = 210000, ImageUrl = "beanie.jpg", Description = "A warm beanie", CategoryId = res2.Id }
+            new CreateProductRequest {
+                Name = "Baseball Cap",
+                Slug = "baseball-cap",
+                Price = 245000,
+                ImageUrl = "",
+                Description = "A cool cap",
+                CategoryId = category2.Id,
+                IsVariant = false,
+            },
+            new CreateProductRequest {
+                Name = "Beanie",
+                Slug = "beanie",
+                Price = 210000,
+                ImageUrl = "",
+                Description = "A warm beanie",
+                CategoryId = category2.Id,
+                IsVariant = false,
+            }
         };
 
         foreach (var product in tshirtProducts.Concat(hatProducts))

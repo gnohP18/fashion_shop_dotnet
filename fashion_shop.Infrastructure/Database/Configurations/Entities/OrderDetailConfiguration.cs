@@ -23,7 +23,7 @@ public class OrderDetailConfiguration : ConfigurationEntity<OrderDetail>
         builder.Property(p => p.Price)
                .IsRequired(true);
 
-        builder.HasIndex(p => new { p.OrderId, p.ProductId }).IsUnique();
+        builder.HasIndex(p => new { p.OrderId, p.ProductId, p.ProductItemId }).IsUnique();
 
         builder.HasOne(p => p.Product)
                .WithMany(c => c.OrderDetails)

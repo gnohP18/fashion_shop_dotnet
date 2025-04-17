@@ -8,7 +8,7 @@ public interface IProductService
 {
     Task<ProductDto?> GetDetailAsync(int id);
     Task<ProductDto?> GetDetailBySlugAsync(string slug);
-    Task<PaginationData<ProductDto>> GetListAsync(GetProductRequest productId);
+    Task<PaginationData<BasicProductDto>> GetListAsync(GetProductRequest productId);
     Task<CreateProductResponse> CreateAsync(CreateProductRequest request);
     Task DeleteAsync(int id);
 }

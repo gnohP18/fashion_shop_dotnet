@@ -28,6 +28,9 @@ namespace fashion_shop.Infrastructure.Database.Configurations.Entities
                    .HasMaxLength(50)
                    .IsRequired();
 
+            builder.Property(p => p.Size)
+                   .IsRequired();
+
             builder.Property(p => p.ObjectType)
                    .HasMaxLength(50)
                    .IsRequired();

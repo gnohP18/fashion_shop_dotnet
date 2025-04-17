@@ -1,18 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 using fashion_shop.Core.Common;
 using fashion_shop.Core.DTOs.Requests.Admin;
-using fashion_shop.Core.Entities;
 using fashion_shop.Core.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace fashion_shop.MVC.Controllers;
 
-[Route("Shop")]
+[Route("shop")]
 public class ShopController : Controller
 {
     private readonly ILogger<ShopController> _logger;
@@ -63,7 +56,6 @@ public class ShopController : Controller
     [HttpGet("detail/{slug}")]
     public async Task<IActionResult> Detail(string slug)
     {
-        System.Console.WriteLine(slug);
         var product = await _productService.GetDetailBySlugAsync(slug);
 
         if (product is null)

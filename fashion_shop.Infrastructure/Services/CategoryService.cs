@@ -53,6 +53,13 @@ public class CategoryService : ICategoryService
 
     public async Task<CreateCategoryResponse> CreateAsync(CreateCategoryRequest request)
     {
+        request.Name = request.Name.Trim();
+
+        if (string.IsNullOrEmpty(request.Name))
+        {
+            throw new BadRequestException("Name is empty");
+        }
+
         var category = _mapper.Map<Category>(request);
 
         if (await _categoryRepository.Queryable.AnyAsync(_ => _.Name.ToLower() == category.Name.ToLower()))

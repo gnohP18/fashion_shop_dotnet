@@ -1,6 +1,6 @@
 @{
     var categories = ViewBag.Categories as List<CategoryDto>;
-    var products = ViewBag.Products as List<ProductDto>;
+    var products = ViewBag.Products as List<BasicProductDto>;
     var currentCategorySlug = Context.Request.Query["categorySlug"].ToString();
     var meta = ViewBag.Meta;
 }
@@ -8,8 +8,10 @@
 <section>
     <div class="row">
         <div class="col-md-3">
-            <div class="py-3">
-                <input type="text" class="form-control" placeholder="Search items">
+            <div class="pb-3">
+                <form action="" method="get">
+                    <input type="text" class="form-control" placeholder="Search items">
+                </form>
             </div>
             <div class="bg-light rounded">
                 <h5>Danh mục</h5>
@@ -41,7 +43,8 @@
                     {
                         <div class="col-md-4">
                             <div class="position-relative border p-3 rounded justify-content-between d-flex flex-column h-100">
-                                <div class="flex-grow-1 jarallax-keep-img">
+                                <div class="flex-grow-1 jarallax-keep-img d-flex align-items-center justfify-contents-center"
+                                    style="height: 250px;">
                                     <img src="@product.ImageUrl" class="h-100 img-fluid jarallax-img" alt="@product.Name">
                                 </div>
                                 <div class="d-flex flex-column">
