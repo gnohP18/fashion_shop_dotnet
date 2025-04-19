@@ -16,9 +16,17 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, int>, IUnitOfW
     }
 
     public DbSet<Product> Products { get; set; }
+    public DbSet<ProductVariant> ProductVariants { get; set; }
+    public DbSet<ProductItem> ProductItems { get; set; }
+    public DbSet<Variant> Variants { get; set; }
+
+    public DbSet<Setting> Settings { get; set; }
+
     public DbSet<Category> Categories { get; set; }
+
     public DbSet<Order> Orders { get; set; }
     public DbSet<OrderDetail> OrderDetails { get; set; }
+
     public DbSet<MediaFile> MediaFiles { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -38,6 +46,32 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, int>, IUnitOfW
         // builder.ApplyConfiguration(new CategoryConfiguration());
 
         builder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+    }
 
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        UpdateSoftDeleteStatuses();
+        return base.SaveChangesAsync(cancellationToken);
+    }
+
+    private void UpdateSoftDeleteStatuses()
+    {
+        foreach (var entry in ChangeTracker.Entries())
+        {
+            if (entry.Entity is BaseEntity)
+            {
+                switch (entry.State)
+                {
+                    case EntityState.Added:
+                        entry.CurrentValues["IsDeleted"] = false;
+                        break;
+
+                    case EntityState.Deleted:
+                        entry.State = EntityState.Modified;
+                        entry.CurrentValues["IsDeleted"] = true;
+                        break;
+                }
+            }
+        }
     }
 }

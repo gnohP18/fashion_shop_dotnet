@@ -24,9 +24,13 @@ $(document).ready(function () {
 
         const code = getSelectionVariant();
 
-        $("#product_variant_price").text($(`#${code}`)
+        const $productItem = $(`#${code}`)
+
+        $("#product_variant_price").text($productItem
             .data("price")
-            .toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }))
+            .toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }));
+
+        $("#main_image").attr("src", $productItem.data("image"));
     })
 
     const getSelectionVariant = () => {

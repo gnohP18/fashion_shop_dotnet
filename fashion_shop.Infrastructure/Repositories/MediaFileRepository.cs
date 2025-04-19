@@ -38,6 +38,11 @@ public class MediaFileRepository : IMediaFileRepository
         _dbContext.MediaFiles.RemoveRange(dataDelete);
     }
 
+    public void DeleteMany(List<MediaFile> entities)
+    {
+        throw new NotImplementedException();
+    }
+
     public void Update(MediaFile entity)
     {
         _dbContext.MediaFiles.Update(entity);

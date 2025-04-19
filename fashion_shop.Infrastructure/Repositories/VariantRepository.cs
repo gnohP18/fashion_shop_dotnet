@@ -1,34 +1,32 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 using fashion_shop.Core.Entities;
 using fashion_shop.Core.Interfaces.Repositories;
 using fashion_shop.Infrastructure.Database;
-using Microsoft.EntityFrameworkCore;
 
 namespace fashion_shop.Infrastructure.Repositories;
 
-public class OrderRepository : IOrderRepository
+public class VariantRepository : IVariantRepository
 {
     private readonly ApplicationDbContext _dbContext;
 
-    public OrderRepository(ApplicationDbContext dbContext)
+    public VariantRepository(ApplicationDbContext dbContext)
     {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
     }
 
+    public IQueryable<Variant> Queryable => _dbContext.Variants.AsQueryable();
+
     public IUnitOfWork UnitOfWork => _dbContext;
 
-    public IQueryable<Order> Queryable => _dbContext.Orders.AsQueryable();
-
-    public async Task AddAsync(Order entity, CancellationToken cancellationToken = default)
+    public Task AddAsync(Variant entity, CancellationToken cancellationToken = default)
     {
-        await _dbContext.AddAsync(entity, cancellationToken);
+        throw new NotImplementedException();
     }
 
-    public void Delete(Order entity)
+    public void Delete(Variant entity)
     {
         throw new NotImplementedException();
     }
@@ -38,12 +36,12 @@ public class OrderRepository : IOrderRepository
         throw new NotImplementedException();
     }
 
-    public void DeleteMany(List<Order> entities)
+    public void DeleteMany(List<Variant> entities)
     {
-        throw new NotImplementedException();
+        _dbContext.Variants.RemoveRange(entities);
     }
 
-    public void Update(Order entity)
+    public void Update(Variant entity)
     {
         throw new NotImplementedException();
     }

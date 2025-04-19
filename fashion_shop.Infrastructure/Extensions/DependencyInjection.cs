@@ -19,6 +19,7 @@ namespace fashion_shop.Infrastructure.Extensions
         {
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<IProductItemService, ProductItemService>();
             services.AddScoped<IAdminAuthService, AdminAuthService>();
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IMediaFileService, MediaFileService>();
@@ -35,6 +36,9 @@ namespace fashion_shop.Infrastructure.Extensions
             services.AddScoped<IMediaFileRepository, MediaFileRepository>();
             services.AddScoped<IOrderRepository, OrderRepository>();
             services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
+            services.AddScoped<IProductVariantRepository, ProductVariantRepository>();
+            services.AddScoped<IProductItemRepository, ProductItemRepository>();
+            services.AddScoped<IVariantRepository, VariantRepository>();
 
             return services;
         }
@@ -45,7 +49,7 @@ namespace fashion_shop.Infrastructure.Extensions
 
             services.AddDbContext<ApplicationDbContext>(options => options
                 .UseNpgsql(connectionString)
-                .UseSnakeCaseNamingConvention(), ServiceLifetime.Transient);
+                .UseSnakeCaseNamingConvention());
 
             var redisConnectionString = configuration.GetConnectionString("RedisConnection");
             if (!string.IsNullOrEmpty(redisConnectionString))
@@ -62,7 +66,6 @@ namespace fashion_shop.Infrastructure.Extensions
                     .WithSSL(false)
                     .Build();
             });
-            services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             return services;
         }

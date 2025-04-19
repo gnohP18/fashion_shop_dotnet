@@ -31,6 +31,6 @@ public class MediaFileController : APIController<MediaFileController>
 
         await _mediaFileService.UpdateStatusMediaFileAsync(s3Key);
 
-        return SuccessResponse<string>(string.Empty, "Success");
+        return OkResponse<string>(string.Empty, "Success");
     }
 }
