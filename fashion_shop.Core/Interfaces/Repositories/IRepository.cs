@@ -33,6 +33,12 @@ public interface IRepository<T> where T : class
     void Delete(T entity);
 
     /// <summary>
+    /// Delete many entities by its ID.
+    /// </summary>
+    /// <param name="entities">List entities</param>
+    void DeleteMany(List<T> entities);
+
+    /// <summary>
     /// Delete multiple entities by their IDs.
     /// </summary>
     /// <param name="ids">A collection of IDs to delete.</param>

@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using fashion_shop.Core.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -25,5 +21,9 @@ public abstract class ConfigurationEntity<T> : IEntityTypeConfiguration<T> where
             .HasColumnName("updated_at")
             .ValueGeneratedOnUpdate()
             .IsRequired(false);
+
+        builder.Property(e => e.IsDeleted)
+            .HasColumnName("is_deleted")
+            .HasDefaultValue(false);
     }
 }

@@ -37,6 +37,11 @@ public class OrderDetailRepository : IOrderDetailRepository
         throw new NotImplementedException();
     }
 
+    public void DeleteMany(List<OrderDetail> entities)
+    {
+        throw new NotImplementedException();
+    }
+
     public void Update(OrderDetail entity)
     {
         throw new NotImplementedException();

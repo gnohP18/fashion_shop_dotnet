@@ -48,4 +48,9 @@ public class Repository<T> : IRepository<T> where T : class
         var entities = _dbSet.Where(e => ids.Contains(EF.Property<int>(e, "Id"))).ToList();
         _dbSet.RemoveRange(entities);
     }
+
+    public void DeleteMany(List<T> entities)
+    {
+        throw new NotImplementedException();
+    }
 }

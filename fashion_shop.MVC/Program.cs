@@ -2,20 +2,33 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using fashion_shop.Core.Entities;
 using fashion_shop.Infrastructure.Database;
+using fashion_shop.Infrastructure.Extensions;
+using fashion_shop.Core.DTOs.Common;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
-// Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+//------------------------------ Service & Repo & Infra ----------------------------------//
+services.AddInfrastructure(builder.Configuration);
+services.AddServices();
+services.AddRepositories();
 
-services.AddDbContext<ApplicationDbContext>(options => options
-                .UseNpgsql(connectionString)
-                .UseSnakeCaseNamingConvention());
+//------------------------------ Mapper ------------------------------------------//
+services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+services.AddHttpContextAccessor();
+
+//------------------------------ Minio Settings ----------------------------------//
+services.Configure<MinioSettings>(builder.Configuration.GetSection("MinioSettings"));
 
 services.AddDatabaseDeveloperPageExceptionFilter();
 services.AddIdentity<User, Role>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
+
+services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Identity/Account/Login"; // Đường dẫn đến trang login
+    options.AccessDeniedPath = "/Identity/Account/AccessDenied"; // Nếu không đủ quyền
+});
 
 
 services.AddControllersWithViews();

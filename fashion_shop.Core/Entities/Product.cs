@@ -16,6 +16,9 @@ public class Product : BaseEntity
 
     public int CategoryId { get; set; }
     public Category Category { get; set; } = default!;
+    public bool IsVariant { get; set; }
 
     public virtual HashSet<OrderDetail> OrderDetails { get; set; } = new HashSet<OrderDetail>();
+    public virtual HashSet<ProductVariant> ProductVariants { get; set; } = new HashSet<ProductVariant>();
+    public virtual HashSet<ProductItem> ProductItems { get; set; } = new HashSet<ProductItem>();
 }

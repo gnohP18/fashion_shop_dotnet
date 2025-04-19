@@ -1,0 +1,43 @@
+@using fashion_shop.Core.DTOs.Responses.User
+@{
+    var orders = ViewBag.OrderData as List<OrderDto>;
+}
+<section class="w-100">
+    <div class="row">
+        <div class="col-md-3">
+            @await Component.InvokeAsync("Profile")
+        </div>
+        <div class="col-md-9 card">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Thành tiền</th>
+                        <th scope="col">Ngày tạo</th>
+                        <th scope="col">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (orders is not null && orders.Count > 0)
+                    {
+                        @foreach (var order in orders)
+                        {
+                            <tr>
+                                <th scope="row">@order.Id</th>
+                                <td>@Function.FormatVnd(order.TotalAmount)</td>
+                                <td>@order.CreatedAt</td>
+                                <td>
+                                    <a href="/profile/order-detail?Id=@Uri.EscapeDataString(order.Id.ToString())"
+                                        class="w-100"><i class="bi bi-arrow-right"></i></a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+
+            </table>
+            @await Html.PartialAsync("Partials/_PaginationPartial", (object)ViewBag.Meta)
+
+        </div>
+    </div>
+</section>

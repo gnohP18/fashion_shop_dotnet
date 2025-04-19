@@ -36,7 +36,11 @@ public class ProductConfiguration : ConfigurationEntity<Product>
                .IsRequired();
 
         builder.Property(p => p.Description)
-               .HasMaxLength(1000);
+               .HasMaxLength(1000)
+               .IsRequired(false);
+
+        builder.Property(p => p.IsVariant)
+               .HasDefaultValue(false);
 
         builder.Property(p => p.CategoryId)
                .IsRequired();

@@ -1,9 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
-
 namespace fashion_shop.Core.Entities;
 
 public abstract class BaseEntity
@@ -12,4 +6,5 @@ public abstract class BaseEntity
 
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset? UpdatedAt { get; set; }
+    public bool IsDeleted { get; set; } = false;
 }

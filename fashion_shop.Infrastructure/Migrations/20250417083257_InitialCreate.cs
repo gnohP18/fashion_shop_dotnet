@@ -21,7 +21,8 @@ namespace fashion_shop.Infrastructure.Migrations
                     name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     slug = table.Column<string>(type: "text", nullable: false),
                     created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-                    updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
+                    updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false)
                 },
                 constraints: table =>
                 {
@@ -38,11 +39,13 @@ namespace fashion_shop.Infrastructure.Migrations
                     file_extension = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     content_type = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     object_type = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    size = table.Column<long>(type: "bigint", nullable: false),
                     object_id = table.Column<int>(type: "integer", nullable: false),
                     s3key = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
                     is_upload = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
                     created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-                    updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
+                    updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false)
                 },
                 constraints: table =>
                 {
@@ -62,6 +65,24 @@ namespace fashion_shop.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_roles", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "setting",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    value = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    default_value = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
+                    updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_setting", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -102,8 +123,10 @@ namespace fashion_shop.Infrastructure.Migrations
                     image_url = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     description = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
                     category_id = table.Column<int>(type: "integer", nullable: false),
+                    is_variant = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
                     created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-                    updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
+                    updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false)
                 },
                 constraints: table =>
                 {
@@ -144,10 +167,12 @@ namespace fashion_shop.Infrastructure.Migrations
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     user_id = table.Column<int>(type: "integer", nullable: false),
-                    total_amount = table.Column<int>(type: "integer", nullable: false),
+                    order_status = table.Column<int>(type: "integer", nullable: false),
+                    total_amount = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
                     note = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
                     created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-                    updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
+                    updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false)
                 },
                 constraints: table =>
                 {
@@ -246,6 +271,88 @@ namespace fashion_shop.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "product_items",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    product_id = table.Column<int>(type: "integer", nullable: false),
+                    code = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    price = table.Column<int>(type: "integer", nullable: false),
+                    image_url = table.Column<string>(type: "text", nullable: true),
+                    quantity = table.Column<int>(type: "integer", nullable: false),
+                    created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
+                    updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_product_items", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_product_items_products_product_id",
+                        column: x => x.product_id,
+                        principalTable: "products",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "product_variants",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    product_id = table.Column<int>(type: "integer", nullable: false),
+                    name = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    priority = table.Column<int>(type: "integer", nullable: false),
+                    created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
+                    updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_product_variants", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_product_variants_products_product_id",
+                        column: x => x.product_id,
+                        principalTable: "products",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "payment_transactions",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    order_id = table.Column<int>(type: "integer", nullable: false),
+                    total_amount = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
+                    currency = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false, defaultValue: "VND"),
+                    status = table.Column<int>(type: "integer", maxLength: 50, nullable: false),
+                    method = table.Column<int>(type: "integer", maxLength: 50, nullable: false),
+                    provider_transaction_id = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    signature = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: true),
+                    raw_response = table.Column<string>(type: "text", nullable: true),
+                    payment_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    fail_reason = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
+                    ipn_verified = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
+                    updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_payment_transactions", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_payment_transactions_orders_order_id",
+                        column: x => x.order_id,
+                        principalTable: "orders",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "order_details",
                 columns: table => new
                 {
@@ -253,11 +360,13 @@ namespace fashion_shop.Infrastructure.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     order_id = table.Column<int>(type: "integer", nullable: false),
                     product_id = table.Column<int>(type: "integer", nullable: false),
+                    product_item_id = table.Column<int>(type: "integer", nullable: false),
                     product_name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     quantity = table.Column<int>(type: "integer", nullable: false),
                     price = table.Column<int>(type: "integer", nullable: false),
                     created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-                    updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
+                    updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false)
                 },
                 constraints: table =>
                 {
@@ -269,9 +378,39 @@ namespace fashion_shop.Infrastructure.Migrations
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
+                        name: "fk_order_details_product_item_product_item_id",
+                        column: x => x.product_item_id,
+                        principalTable: "product_items",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.SetNull);
+                    table.ForeignKey(
                         name: "fk_order_details_products_product_id",
                         column: x => x.product_id,
                         principalTable: "products",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "variants",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    product_variant_id = table.Column<int>(type: "integer", nullable: false),
+                    code = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
+                    value = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
+                    created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
+                    updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_variants", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_variants_product_variants_product_variant_id",
+                        column: x => x.product_variant_id,
+                        principalTable: "product_variants",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -283,9 +422,9 @@ namespace fashion_shop.Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "ix_order_details_order_id_product_id",
+                name: "ix_order_details_order_id_product_id_product_item_id",
                 table: "order_details",
-                columns: new[] { "order_id", "product_id" },
+                columns: new[] { "order_id", "product_id", "product_item_id" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -294,9 +433,39 @@ namespace fashion_shop.Infrastructure.Migrations
                 column: "product_id");
 
             migrationBuilder.CreateIndex(
+                name: "ix_order_details_product_item_id",
+                table: "order_details",
+                column: "product_item_id");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_orders_user_id",
                 table: "orders",
                 column: "user_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_payment_transactions_order_id",
+                table: "payment_transactions",
+                column: "order_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_payment_transactions_provider_transaction_id",
+                table: "payment_transactions",
+                column: "provider_transaction_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_product_items_product_id",
+                table: "product_items",
+                column: "product_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_product_variants_priority",
+                table: "product_variants",
+                column: "priority");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_product_variants_product_id",
+                table: "product_variants",
+                column: "product_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_products_category_id",
@@ -345,6 +514,11 @@ namespace fashion_shop.Infrastructure.Migrations
                 table: "users",
                 column: "normalized_user_name",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "ix_variants_product_variant_id",
+                table: "variants",
+                column: "product_variant_id");
         }
 
         /// <inheritdoc />
@@ -357,7 +531,13 @@ namespace fashion_shop.Infrastructure.Migrations
                 name: "order_details");
 
             migrationBuilder.DropTable(
+                name: "payment_transactions");
+
+            migrationBuilder.DropTable(
                 name: "role_claims");
+
+            migrationBuilder.DropTable(
+                name: "setting");
 
             migrationBuilder.DropTable(
                 name: "user_claims");
@@ -372,16 +552,25 @@ namespace fashion_shop.Infrastructure.Migrations
                 name: "user_tokens");
 
             migrationBuilder.DropTable(
-                name: "orders");
+                name: "variants");
 
             migrationBuilder.DropTable(
-                name: "products");
+                name: "product_items");
+
+            migrationBuilder.DropTable(
+                name: "orders");
 
             migrationBuilder.DropTable(
                 name: "roles");
 
             migrationBuilder.DropTable(
+                name: "product_variants");
+
+            migrationBuilder.DropTable(
                 name: "users");
+
+            migrationBuilder.DropTable(
+                name: "products");
 
             migrationBuilder.DropTable(
                 name: "categories");
