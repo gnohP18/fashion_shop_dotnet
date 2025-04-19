@@ -15,6 +15,7 @@ public class ProductMapper : Profile
     {
         CreateMap<CreateProductRequest, Product>();
         CreateMap<Product, BasicProductDto>();
+        CreateMap<UpdateProductRequest, Product>();
         CreateMap<Product, CreateProductResponse>()
             .ForMember(
                 dest => dest.Category,
@@ -22,6 +23,9 @@ public class ProductMapper : Profile
         CreateMap<Product, ProductDto>()
             .ForMember(
                 dest => dest.CategoryName,
-                opt => opt.MapFrom(src => src.Category.Name)); ;
+                opt => opt.MapFrom(src => src.Category.Name));
+
+        CreateMap<UpdateProductItemRequest, ProductItem>();
+        CreateMap<ProductItem, ProductItemDto>();
     }
 }

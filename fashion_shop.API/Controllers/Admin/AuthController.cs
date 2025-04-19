@@ -46,7 +46,7 @@ namespace fashion_shop.API.Controllers.Admin
 
             var data = await _adminAuthService.LoginAsync(request);
 
-            return SuccessResponse<AdminLoginResponse>(data, "Login successfully");
+            return OkResponse<AdminLoginResponse>(data, "Login successfully");
         }
 
         [HttpPost("logout")]
@@ -76,7 +76,7 @@ namespace fashion_shop.API.Controllers.Admin
 
             await _adminAuthService.LogoutAsync(userId, jti);
 
-            return SuccessResponse<string>(string.Empty, "Logout successfully");
+            return OkResponse<string>(string.Empty, "Logout successfully");
         }
 
         [HttpPost("refresh")]
@@ -89,7 +89,7 @@ namespace fashion_shop.API.Controllers.Admin
 
             var data = await _adminAuthService.RefreshLoginAsync(request);
 
-            return SuccessResponse<AdminLoginResponse>(data, "Refresh login successfully");
+            return OkResponse<AdminLoginResponse>(data, "Refresh login successfully");
         }
 
         [HttpPost("test-create-user")]
@@ -117,7 +117,7 @@ namespace fashion_shop.API.Controllers.Admin
                 }
             }
 
-            return SuccessResponse<string>(string.Empty, $"Created user with username={request.Username} password={request.Password} successfully");
+            return OkResponse<string>(string.Empty, $"Created user with username={request.Username} password={request.Password} successfully");
         }
 
     }

@@ -12,7 +12,7 @@
         <div class="row gx-5">
             <aside class="col-lg-6">
                 <div class="rounded-4 d-flex justify-content-center">
-                    <img style="max-width: 100%; max-height: 100vh; margin: auto;" class="rounded-4 fit"
+                    <img id="main_image" style="max-width: 100%; max-height: 100vh; margin: auto;" class="rounded-4 fit"
                         src="@product?.ImageUrl" />
                 </div>
             </aside>
@@ -25,17 +25,25 @@
                     <div class="d-flex flex-row align-items-end">
                         <div class="d-flex flex-row gap-3 align-items-end">
                             <span class="h5">Giá bán:</span>
-                            <span class="h4 text-bold" id="product_variant_price"></span>
+                            @{
+                                var price = 0;
+                                if (product is not null)
+                                {
+                                    price = product.IsVariant ? 0 : product.Price;
+                                }
+                            }
+                            <span class="h4 text-bold" id="product_variant_price">@price</span>
                         </div>
                         <span class="text-muted">/Cái</span>
                     </div>
 
-                    <hr />
 
                     @if (product?.IsVariant is not null && product.IsVariant)
                     {
                         @if (product?.ProductVariants is not null && product?.ProductVariants.Count > 0)
                         {
+                            <hr />
+                            <h5>Loại</h5>
                             <div class="d-flex flex-column">
                                 @foreach (var productVariant in product.ProductVariants)
                                 {
@@ -60,6 +68,7 @@
                             @foreach (var productItem in product.ProductItems)
                             {
                                 <input type="hidden" id="@productItem.Code" value="@productItem.Id" data-code="@productItem.Code"
+                                    data-image="@(productItem.ImageUrl ?? "https://picsum.photos/200")"
                                     data-price="@productItem.Price" />
                             }
                         }
@@ -67,6 +76,7 @@
                     <hr />
 
                     <div class="w-100 py-3">
+                        <h5>Mô tả</h5>
                         @product?.Description
                     </div>
 

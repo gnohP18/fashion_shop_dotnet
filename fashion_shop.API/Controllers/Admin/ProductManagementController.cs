@@ -19,18 +19,23 @@ namespace fashion_shop.API.Controllers.Admin
     {
         private readonly ICategoryService _categoryService;
         private readonly IProductService _productService;
+        private readonly IProductItemService _productItemService;
         private readonly IMediaFileService _mediaFileService;
 
         public ProductManagementController(
             ILogger<ProductManagementController> logger,
             ICategoryService categoryService,
             IProductService productService,
-            IMediaFileService mediaFileService) : base(logger)
+            IMediaFileService mediaFileService,
+            IProductItemService productItemService) : base(logger)
         {
             _categoryService = categoryService ?? throw new ArgumentNullException(nameof(categoryService));
             _productService = productService ?? throw new ArgumentNullException(nameof(productService));
             _mediaFileService = mediaFileService ?? throw new ArgumentNullException(nameof(mediaFileService));
+            _productItemService = productItemService ?? throw new ArgumentNullException(nameof(productItemService));
         }
+
+        #region Categories
 
         [HttpPost("categories")]
         public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryRequest request)
@@ -42,7 +47,7 @@ namespace fashion_shop.API.Controllers.Admin
 
             var data = await _categoryService.CreateAsync(request);
 
-            return SuccessResponse(data, "Created successfully");
+            return CreatedResponse<string>("Created successfully");
         }
 
         [HttpGet("categories")]
@@ -56,9 +61,12 @@ namespace fashion_shop.API.Controllers.Admin
         {
             await _categoryService.DeleteAsync(id);
 
-            return SuccessResponse<string>(string.Empty, "Deleted data successfully");
+            return NoContentResponse<string>("Deleted data successfully");
         }
 
+        #endregion
+
+        #region Basic Products
         [HttpGet("products")]
         public async Task<PaginationData<BasicProductDto>> GetProductAsync([FromQuery] GetProductRequest request)
         {
@@ -70,11 +78,11 @@ namespace fashion_shop.API.Controllers.Admin
         {
             if (!ModelState.IsValid)
             {
-                return ErrorResponse<CreateProductResponse>("Validation Failed");
+                return ErrorResponse<string>("Validation Failed");
             }
-            var data = await _productService.CreateAsync(request);
+            await _productService.CreateAsync(request);
 
-            return SuccessResponse<CreateProductResponse>(data, "Created successfully");
+            return CreatedResponse<string>("Created successfully");
         }
 
         /// <summary>
@@ -109,7 +117,7 @@ namespace fashion_shop.API.Controllers.Admin
                 ObjectId = id
             });
 
-            return SuccessResponse<string>(data, ""); ;
+            return NoContentResponse<string>("Upload file successfully"); ;
         }
 
         /// <summary>
@@ -118,7 +126,7 @@ namespace fashion_shop.API.Controllers.Admin
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpPost("products/{id}/presigned-upload")]
-        public async Task<IActionResult> CreatePresignUploadUrl(int id, [FromBody] CreatePresignedUrlRequest request)
+        public async Task<IActionResult> CreatePresignUploadBasicProductUrl(int id, [FromBody] CreatePresignedUrlRequest request)
         {
             if (!ModelState.IsValid)
             {
@@ -135,7 +143,27 @@ namespace fashion_shop.API.Controllers.Admin
             var presignUrl = await _mediaFileService
                 .CreatePresignedUrlAsync(request, nameof(Product).ToLower(), product.Id);
 
-            return SuccessResponse<string>(presignUrl, "Created successfully");
+            return OkResponse<string>(presignUrl, "Created successfully");
+        }
+
+        [HttpPut("products/{id}")]
+        public async Task<IActionResult> UpdateBasicProduct(int id, [FromBody] UpdateProductRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ErrorResponse<string>("Validation Failed");
+            }
+
+            var product = await _productService.GetDetailAsync(id);
+
+            if (product is null)
+            {
+                throw new NotFoundException($"Not found product={id}");
+            }
+
+            await _productService.UpdateBasicInfoAsync(id, request);
+
+            return OkResponse<string>(string.Empty, "Update successfully");
         }
 
         [HttpGet("products/{id}")]
@@ -148,7 +176,7 @@ namespace fashion_shop.API.Controllers.Admin
                 throw new NotFoundException($"Not found product Id={id}");
             }
 
-            return SuccessResponse<ProductDto>(data, "Get data successfully");
+            return OkResponse<ProductDto>(data, "Get data successfully");
         }
 
         [HttpDelete("products/{id}")]
@@ -156,7 +184,64 @@ namespace fashion_shop.API.Controllers.Admin
         {
             await _productService.DeleteAsync(id);
 
-            return SuccessResponse<string>(string.Empty, "Deleted data successfully");
+            return NoContentResponse<string>("Deleted data successfully");
+        }
+        #endregion
+
+        #region Variant & Item Products
+        [HttpPut("products/variants/{id}")]
+        public async Task<IActionResult> UpdateProductVariant(int id, [FromBody] UpdateProductVariantRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ErrorResponse<string>("Validation Failed");
+            }
+
+            var product = await _productService.GetDetailAsync(id);
+
+            if (product is null)
+            {
+                throw new NotFoundException($"Not found product={id}");
+            }
+
+            if (request.IsVariant)
+            {
+                if (product.IsVariant && request.ProductItems.Count == 0)
+                {
+                    throw new BadRequestException("Missing ProductItem Array");
+                }
+
+                if (!product.IsVariant && (request.ProductVariants.Count == 0 || request.Variants.Count == 0))
+                {
+                    throw new BadRequestException("Missing ProductVariants Array Or Variants Array");
+                }
+            }
+
+            await _productService.UpdateProductVariantAsync(id, request);
+
+            return OkResponse<string>(string.Empty, "Update successfully");
+        }
+
+        [HttpPost("products/product-items/{id}/presigned-upload")]
+        public async Task<IActionResult> CreatePresignUploadProductItemUrl(int id, [FromBody] CreatePresignedUrlRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ErrorResponse<string>("Validation Failed");
+            }
+
+            var productItem = await _productItemService.GetDetailAsync(id);
+
+            if (productItem is null)
+            {
+                throw new NotFoundException($"Not found product item={id}");
+            }
+
+            var presignUrl = await _mediaFileService
+                .CreatePresignedUrlAsync(request, nameof(ProductItem).ToLower(), productItem.Id);
+
+            return OkResponse<string>(presignUrl, "Created successfully");
         }
     }
+    #endregion
 }

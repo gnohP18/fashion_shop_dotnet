@@ -8,6 +8,7 @@ using fashion_shop.Core.Interfaces.Repositories;
 using fashion_shop.Core.Interfaces.Services;
 using fashion_shop.Core.Exceptions;
 using Microsoft.EntityFrameworkCore;
+using fashion_shop.Infrastructure.Common;
 
 namespace fashion_shop.Infrastructure.Services;
 
@@ -26,7 +27,10 @@ public class CategoryService : ICategoryService
 
     public async Task<PaginationData<CategoryDto>> GetListAsync(GetCategoryRequest request)
     {
-        var query = _categoryRepository.Queryable.AsNoTracking();
+        var query = _categoryRepository
+            .Queryable
+            .AsNoTracking()
+            .WithoutDeleted();
 
         var total = await query.CountAsync();
 
@@ -62,7 +66,9 @@ public class CategoryService : ICategoryService
 
         var category = _mapper.Map<Category>(request);
 
-        if (await _categoryRepository.Queryable.AnyAsync(_ => _.Name.ToLower() == category.Name.ToLower()))
+        if (await _categoryRepository.Queryable
+            .WithoutDeleted()
+            .AnyAsync(_ => _.Name.ToLower() == category.Name.ToLower()))
         {
             throw new BadRequestException("Name already existed");
         }
@@ -75,14 +81,17 @@ public class CategoryService : ICategoryService
 
     public async Task DeleteAsync(int id)
     {
-        var category = await _categoryRepository.Queryable.FirstOrDefaultAsync(_ => _.Id == id);
+        var category = await _categoryRepository
+            .Queryable
+            .WithoutDeleted()
+            .FirstOrDefaultAsync(_ => _.Id == id);
 
         if (category is null)
         {
             throw new NotFoundException($"Not found category with Id={id}");
         }
 
-        if (await _productRepository.Queryable.FirstOrDefaultAsync(_ => _.Id == id) is not null)
+        if (await _productRepository.Queryable.AnyAsync(_ => _.CategoryId == id))
         {
             throw new BadRequestException("Can not delete category because it has products");
         }

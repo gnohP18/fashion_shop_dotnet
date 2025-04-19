@@ -19,13 +19,40 @@ namespace fashion_shop.API.Controllers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        protected ActionResult SuccessResponse<A>(A data, string message) where A : class
+        protected ActionResult OkResponse<A>(A data, string message) where A : class
         {
             return Ok(new
             {
-                status = 200,
+                status = HttpStatusCode.OK,
                 message,
                 data
+            });
+        }
+
+        protected ActionResult CreatedResponse<A>(string message) where A : class
+        {
+            return Ok(new
+            {
+                status = HttpStatusCode.Created,
+                message,
+            });
+        }
+
+        protected ActionResult AcceptedResponse<A>(string message) where A : class
+        {
+            return Ok(new
+            {
+                status = HttpStatusCode.Accepted,
+                message,
+            });
+        }
+
+        protected ActionResult NoContentResponse<A>(string message) where A : class
+        {
+            return Ok(new
+            {
+                status = HttpStatusCode.NoContent,
+                message,
             });
         }
 
