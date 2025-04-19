@@ -82,7 +82,8 @@ public partial class ProductService : IProductService
                 Name = p.Name,
                 Slug = p.Slug,
                 Price = p.Price,
-                ImageUrl = $"{_minioSettings.Endpoint}/{_minioSettings.BucketName}/{p.ImageUrl}",
+                ImageUrl = !string.IsNullOrWhiteSpace(p.ImageUrl) ?
+                    $"{_minioSettings.Endpoint}/{_minioSettings.BucketName}/{p.ImageUrl}" : ProductConstant.DefaultImage600,
                 CategoryId = p.CategoryId,
                 CategoryName = p.Category.Name,
             })
@@ -126,20 +127,10 @@ public partial class ProductService : IProductService
             throw new NotFoundException($"Not found product id={id}");
         }
 
-        var canDelete = true;
+        await DisableProductVariant(id);
 
-        // Check if product have
-        canDelete = !await _orderDetailRepository
-            .Queryable
-            .AsNoTracking()
-            .WithoutDeleted()
-            .AnyAsync(p => p.ProductId == id);
-
-        if (canDelete)
-        {
-            _productRepository.Delete(product);
-            await _productRepository.UnitOfWork.SaveChangesAsync();
-        }
+        _productRepository.Delete(product);
+        await _productRepository.UnitOfWork.SaveChangesAsync();
     }
 
     public async Task<ProductDto?> GetDetailBySlugAsync(string slug)
@@ -153,7 +144,8 @@ public partial class ProductService : IProductService
                 Name = p.Name,
                 Slug = p.Slug,
                 Price = p.Price,
-                ImageUrl = $"{_minioSettings.Endpoint}/{_minioSettings.BucketName}/{p.ImageUrl}",
+                ImageUrl = !string.IsNullOrWhiteSpace(p.ImageUrl)
+                    ? $"{_minioSettings.Endpoint}/{_minioSettings.BucketName}/{p.ImageUrl}" : ProductConstant.DefaultImage600,
                 CategoryId = p.CategoryId,
                 CategoryName = p.Category.Name,
                 IsVariant = p.IsVariant,

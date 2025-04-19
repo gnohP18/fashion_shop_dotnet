@@ -1,7 +1,5 @@
-@using fashion_shop.Core.DTOs.Requests.Admin
-@using static fashion_shop.MVC.Controllers.CartController
 @{
-    var cartItems = ViewBag.CartItems as Dictionary<ProductDto, int>;
+    var cartItems = ViewBag.CartItems as Dictionary<CartItemDto, int>;
 }
 <section class="d-flex flex-column gap-3">
     @if (cartItems is not null && cartItems?.Count() > 0)
@@ -13,14 +11,24 @@
                 <div class="row product-row border p-2 rounded" id="product_row_@cartItem.Key.Id">
                     <div class="col-12 col-md-2">
                         <div class="img-wrapper" style="width: 150px; height:150px; overflow: hidden;">
-                            <img class="img-fluid rounded" src="@cartItem.Key.ImageUrl" alt="@cartItem.Key.Name" />
+                            <img class="img-fluid rounded" src="@cartItem.Key.ImageUrl" alt="@cartItem.Key.ProductName" />
                         </div>
                     </div>
                     <div class="col-12 col-md-10 d-flex flex-row">
                         <div class="col-6 col-md-4">
                             <a class="fs-3" asp-controller="Shop" asp-action="Detail"
-                                asp-route-id="@cartItem.Key.Id">@cartItem.Key.Name</a>
+                                asp-route-id="@cartItem.Key.ProductSlug">@cartItem.Key.ProductName</a>
                             <h6>Danh mục: @cartItem.Key.CategoryName</h6>
+                            <p>@cartItem.Key.IsVariant</p>
+                            @if (cartItem.Key.IsVariant && cartItem.Key.Variants is not null && cartItem.Key.Variants.Count > 0)
+                            {
+                                <div class="d-flex flex-row gap-1">
+                                    @foreach (var variant in cartItem.Key.Variants)
+                                    {
+                                        <button class="btn btn-small btn-black hvr-sweep-to-right rounded">@variant</button>
+                                    }
+                                </div>
+                            }
                         </div>
                         <div class="col-6 col-md-4 d-flex flex-row">
                             <div class="col-6">
@@ -46,7 +54,7 @@
                                     <label class="py-2">@Function.FormatVnd(cartItem.Key.Price)</label>
                                 </div>
                                 <button type="button" data-product-id="@cartItem.Key.Id"
-                                    class="btn btn-small btn-black hvr-sweep-to-right remove-item-cart-btn">Xoá</button>
+                                    class="btn btn-small btn-black rounded hvr-sweep-to-right remove-item-cart-btn">Xoá</button>
                             </div>
                         </div>
                     </div>

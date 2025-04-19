@@ -68,28 +68,32 @@
                             @foreach (var productItem in product.ProductItems)
                             {
                                 <input type="hidden" id="@productItem.Code" value="@productItem.Id" data-code="@productItem.Code"
-                                    data-image="@(productItem.ImageUrl ?? "https://picsum.photos/200")"
-                                    data-price="@productItem.Price" />
+                                    data-image="@(productItem.ImageUrl)" data-price="@productItem.Price" />
                             }
                         }
                     }
-                    <hr />
+                    else
+                    {
+                        <input type="hidden" id="@product?.ProductItems[0].Code" value="@product?.ProductItems[0].Id"
+                            data-code="@product?.ProductItems[0].Code" data-image="@(product?.ImageUrl)"
+                            data-price="@product?.Price" />
+                    }
 
+                    <hr />
                     <div class="w-100 py-3">
                         <h5>Mô tả</h5>
                         @product?.Description
                     </div>
 
                     <hr />
-                    @* <a href="#" class="btn btn-warning shadow-0 hvr-sweep-to-right"> Buy now </a> *@
+                    <input type="hidden" name="is_variant" id="is_variant" value="@product?.IsVariant.ToString()">
                     @if (SignInManager.IsSignedIn(User))
                     {
-                        <a data-product-id="@product?.Id" class="btn btn-black shadow-0 add-to-cart-btn hvr-sweep-to-right">
+                        <a data-product-id="@product?.Id" data-productitem-id=""
+                            class="btn btn-black shadow-0 add-to-cart-btn hvr-sweep-to-right">
                             <i class="me-1 fa fa-shopping-basket"></i> Add to cart
                         </a>
                     }
-                    @* <a href="#" class="btn btn-light hvr-sweep-to-right border border-secondary icon-hover px-3">
-                        <i class="me-1 fa fa-heart fa-lg"></i> Save </a> *@
                 </div>
             </main>
         </div>

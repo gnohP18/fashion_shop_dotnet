@@ -21,7 +21,7 @@ public class CartController : Controller
 {
     public class CartItem
     {
-        public int ProductId { get; set; }
+        public int ProductItemId { get; set; }
         public int Quantity { get; set; }
     }
 
@@ -50,7 +50,7 @@ public class CartController : Controller
     {
         var cart = GetCart();
 
-        var cartItems = cart.ToDictionary(item => item.ProductId, item => item.Quantity);
+        var cartItems = cart.ToDictionary(item => item.ProductItemId, item => item.Quantity);
 
         var cartItemData = await _cartService.GetListAsync(cartItems);
 
@@ -60,21 +60,21 @@ public class CartController : Controller
     }
 
     [HttpGet("add-to-cart")]
-    public async Task<IActionResult> AddToCart(int productId)
+    public async Task<IActionResult> AddToCart(int productItemId)
     {
         var cart = GetCart();
 
         // check exist product
-        var existingItem = cart?.FirstOrDefault(c => c.ProductId == productId);
+        var existingItem = cart?.FirstOrDefault(c => c.ProductItemId == productItemId);
 
-        if (await _productService.GetDetailAsync(productId) is null)
+        if (await _cartService.CheckProductExistByProductItemIdAsync(productItemId) is false)
         {
             return NotFound();
         }
 
         if (existingItem == null)
         {
-            cart?.Add(new CartItem { ProductId = productId, Quantity = 1 });
+            cart?.Add(new CartItem { ProductItemId = productItemId, Quantity = 1 });
         }
 
         // Update Cart
@@ -92,12 +92,12 @@ public class CartController : Controller
     }
 
     [HttpDelete("remove-in-cart")]
-    public IActionResult RemoveInCart(int productId)
+    public IActionResult RemoveInCart(int productItemId)
     {
         var cart = GetCart();
 
         // check exist product
-        var existingItem = cart?.FirstOrDefault(c => c.ProductId == productId);
+        var existingItem = cart?.FirstOrDefault(c => c.ProductItemId == productItemId);
 
         if (existingItem is not null)
         {
@@ -122,7 +122,7 @@ public class CartController : Controller
     {
         var cart = GetCart();
 
-        var cartItems = cart.ToDictionary(item => item.ProductId, item => item.Quantity);
+        var cartItems = cart.ToDictionary(item => item.ProductItemId, item => item.Quantity);
 
         var cartItemData = await _cartService.GetListAsync(cartItems);
 
@@ -157,9 +157,9 @@ public class CartController : Controller
 
         if (cart?.Count > 0)
         {
-            var resp = await _cartService.CheckoutCartAsync(Int32.Parse(userId), cart.ToDictionary(item => item.ProductId, item => item.Quantity));
+            var resp = await _cartService.CheckoutCartAsync(Int32.Parse(userId), cart.ToDictionary(item => item.ProductItemId, item => item.Quantity));
 
-            if (resp)
+            if (true)
             {
                 Response.Cookies.Append(cartId, JsonSerializer.Serialize(new List<CartItem>()), new CookieOptions
                 {

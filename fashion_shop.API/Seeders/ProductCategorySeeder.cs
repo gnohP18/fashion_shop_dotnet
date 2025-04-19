@@ -31,13 +31,13 @@ public static class ProductCategorySeeder
             new CreateVariantRequest { Priority = 1, Value = "Black"},
             new CreateVariantRequest { Priority = 1, Value = "White"},
             // product2 -> product_variant2
-            new CreateVariantRequest { Priority = 1, Value = "S"},
-            new CreateVariantRequest { Priority = 1, Value = "M"},
-            new CreateVariantRequest { Priority = 1, Value = "L"},
+            new CreateVariantRequest { Priority = 2, Value = "S"},
+            new CreateVariantRequest { Priority = 2, Value = "M"},
+            new CreateVariantRequest { Priority = 2, Value = "L"},
             // product2 -> product_variant3
-            new CreateVariantRequest { Priority = 1, Value = "Cotton"},
-            new CreateVariantRequest { Priority = 1, Value = "Wool"},
-            new CreateVariantRequest { Priority = 1, Value = "Silk"}
+            new CreateVariantRequest { Priority = 3, Value = "Cotton"},
+            new CreateVariantRequest { Priority = 3, Value = "Wool"},
+            new CreateVariantRequest { Priority = 3, Value = "Silk"}
         };
 
         // Seed Products
@@ -47,7 +47,7 @@ public static class ProductCategorySeeder
                 Name = "Classic Tee",
                 Slug = "classic-tee",
                 Price = 400000,
-                Description = "A classic t-shirt",
+                Description = "Áo thun đủ màu mua ngày đi kẻo ế",
                 ImageUrl = "",
                 CategoryId = category1.Id,
                 IsVariant = false,
@@ -56,12 +56,12 @@ public static class ProductCategorySeeder
                 Name = "Graphic Tee",
                 Slug = "graphic-tee",
                 Price = 203000,
-                Description = "A graphic t-shirt",
+                Description = "Áo thun đủ màu mua ngày đi kẻo ế",
                 ImageUrl = "",
                 CategoryId = category1.Id,
-                IsVariant = false,
-                // ProductVariants = productVariants1,
-                // Variants = variants1
+                IsVariant = true,
+                ProductVariants = productVariants1,
+                Variants = variants1
             }
         };
 
@@ -83,7 +83,9 @@ public static class ProductCategorySeeder
                 ImageUrl = "",
                 Description = "A warm beanie",
                 CategoryId = category2.Id,
-                IsVariant = false,
+                IsVariant = true,
+                ProductVariants = productVariants1,
+                Variants = variants1
             }
         };
 
