@@ -4,9 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using fashion_shop.Core.DTOs.Common;
 using fashion_shop.Core.DTOs.Requests.Admin;
+using fashion_shop.Core.DTOs.Responses.Admin;
+using fashion_shop.Core.DTOs.Responses.User;
 using fashion_shop.Core.Entities;
 using fashion_shop.Core.Interfaces.Repositories;
 using fashion_shop.Core.Interfaces.Services;
+using fashion_shop.Infrastructure.Common;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -16,6 +19,7 @@ namespace fashion_shop.Infrastructure.Services;
 public class CartService : ICartService
 {
     private readonly IProductRepository _productRepository;
+    private readonly IProductItemRepository _productItemRepository;
     private readonly UserManager<User> _userManager;
     private readonly MinioSettings _minioSettings;
     private readonly IOrderRepository _orderRepository;
@@ -24,32 +28,42 @@ public class CartService : ICartService
         IProductRepository productRepository,
         IOptions<MinioSettings> options,
         UserManager<User> userManager,
-        IOrderRepository orderRepository)
+        IOrderRepository orderRepository,
+        IProductItemRepository productItemRepository)
     {
         _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
         _minioSettings = options.Value ?? throw new ArgumentNullException(nameof(options));
-        _userManager = userManager;
-        _orderRepository = orderRepository;
+        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+        _orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+        _productItemRepository = productItemRepository ?? throw new ArgumentNullException(nameof(productItemRepository));
     }
 
-    public async Task<Dictionary<ProductDto, int>> GetListAsync(Dictionary<int, int> cartItems)
+    public async Task<Dictionary<CartItemDto, int>> GetListAsync(Dictionary<int, int> cartItems)
     {
         var ids = cartItems.Select(x => x.Key).ToList();
 
-        var query = await _productRepository
+        var query = await _productItemRepository
             .Queryable
             .AsNoTracking()
+            .Include(pi => pi.Product)
             .Where(x => ids.Contains(x.Id))
-            .Select(p => new ProductDto()
+            .Select(p => new CartItemDto()
             {
                 Id = p.Id,
-                Name = p.Name,
-                Slug = p.Slug,
+                ProductName = p.Product.Name,
+                ProductSlug = p.Product.Slug,
+                Code = p.Code,
                 Price = p.Price,
                 ImageUrl = $"{_minioSettings.Endpoint}/{_minioSettings.BucketName}/{p.ImageUrl}",
-                CategoryId = p.CategoryId,
-                CategoryName = p.Category.Name,
+                CategoryId = p.Product.CategoryId,
+                CategoryName = p.Product.Category.Name,
+                IsVariant = p.Product.IsVariant,
             }).ToListAsync();
+
+        query.ForEach(cartItem =>
+        {
+            cartItem.Variants = cartItem.IsVariant ? cartItem.Code.Split("_").ToList() : new List<string>();
+        });
 
         var result = query.ToDictionary(
             product => product,
@@ -70,16 +84,17 @@ public class CartService : ICartService
         // Create order detail
         var ids = cartItems.Select(x => x.Key).ToList();
 
-        var products = await _productRepository
+        var products = await _productItemRepository
             .Queryable
             .AsNoTracking()
             .Where(x => ids.Contains(x.Id))
-            .Select(p => new ProductDto()
+            .Select(p => new
             {
                 Id = p.Id,
-                Name = p.Name,
+                ProductId = p.Product.Id,
+                Name = p.Product.Name,
                 Price = p.Price,
-                CategoryId = p.CategoryId,
+                CategoryId = p.Product.CategoryId,
             }).ToListAsync();
 
         var orderDetails = new HashSet<OrderDetail>();
@@ -90,7 +105,8 @@ public class CartService : ICartService
         {
             var orderDetail = new OrderDetail()
             {
-                ProductId = item.Id,
+                ProductItemId = item.Id,
+                ProductId = item.ProductId,
                 ProductName = item.Name,
                 Price = item.Price,
                 Quantity = cartItems[item.Id]
@@ -112,5 +128,15 @@ public class CartService : ICartService
         await _orderRepository.UnitOfWork.SaveChangesAsync();
 
         return true;
+    }
+
+    public async Task<bool> CheckProductExistByProductItemIdAsync(int productItemId)
+    {
+        return await _productItemRepository
+            .Queryable
+            .AsNoTracking()
+            .WithoutDeleted()
+            .Where(pi => pi.Id == productItemId && pi.Product.IsDeleted == false)
+            .AnyAsync();
     }
 }

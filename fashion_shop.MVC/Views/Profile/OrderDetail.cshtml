@@ -32,14 +32,14 @@
         @if (orderDetail?.OrderDetail is not null && orderDetail.OrderDetail?.Count() > 0)
         {
             <div class="table-responsive mt-4">
-                <table class="table table-bordered">
+                <table class="table table-bordered w-100 fixed">
                     <thead class="table-light">
                         <tr>
-                            <th>Sản phẩm</th>
-                            <th>Mô tả</th>
-                            <th>Giá</th>
-                            <th>Số lượng</th>
-                            <th>Thành tiền(đ)</th>
+                            <th style="width: 30%;">Sản phẩm</th>
+                            <th style="width: 10%;" class="text-center">Mô tả</th>
+                            <th style="width: 10%;" class="text-end">Giá</th>
+                            <th style="width: 10%;" class="text-end">Số lượng</th>
+                            <th style="width: 20%;" class="text-end">Thành tiền(đ)</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -49,28 +49,29 @@
                         @foreach (var item in orderDetail.OrderDetail)
                         {
                             total += item.Price * item.Quantity;
-                            <tr class="product-row">
-                                <td class="row">
+                            <tr>
+                                <td class="d-flex flex-row gap-2">
                                     <div class="col-3">
-                                        <img src="@item.ImageUrl" alt="" srcset="">
+                                        <img class="w-100 h-100" src="@item.ImageUrl" alt="@item.ProductName">
                                     </div>
-                                    <div class="col-9">@item.ProductName</div>
+                                    <a class="fs-6" asp-controller="Shop" asp-action="Detail"
+                                        asp-route-id="@item.ProductSlug">@item.ProductName</a>
                                 </td>
-                                <td></td>
-                                <td>@item.Price</td>
-                                <td>@item.Quantity</td>
-                                <td>đ @Function.FormatVnd(item.Price * item.Quantity)</td>
+                                <td>@string.Join(", ", item.Variants)</td>
+                                <td class="text-end">@Function.FormatVnd(item.Price)</td>
+                                <td class="text-end">@item.Quantity</td>
+                                <td class="text-end">@Function.FormatVnd(item.Price * item.Quantity)</td>
                             </tr>
                         }
                     </tbody>
                     <tfoot>
                         <tr>
                             <th colspan="4" class="text-end">Thành tiền:</th>
-                            <td>đ @Function.FormatVnd(total)</td>
+                            <td class="text-end">@Function.FormatVnd(total)</td>
                         </tr>
                         <tr>
                             <th colspan="4" class="text-end fw-bold">Tổng cộng:</th>
-                            <td class="fw-bold">đ @Function.FormatVnd(total)</td>
+                            <td class="fw-bold text-end">@Function.FormatVnd(total)</td>
                         </tr>
                     </tfoot>
                 </table>

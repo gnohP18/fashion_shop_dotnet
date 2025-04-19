@@ -1,7 +1,7 @@
 @using fashion_shop.Core.DTOs.Requests.Admin
 @using fashion_shop.Core.Entities
 @{
-    var cartItems = ViewBag.CartItems as Dictionary<ProductDto, int>;
+    var cartItems = ViewBag.CartItems as Dictionary<CartItemDto, int>;
     var userProfile = ViewBag.UserProfile as User;
 }
 <div class="container my-5">
@@ -51,8 +51,8 @@
                         {
                             total += item.Key.Price * item.Value;
                             <tr class="product-row">
-                                <td>@item.Key.Name</td>
-                                <td>@item.Key.Description</td>
+                                <td>@item.Key.ProductName</td>
+                                <td>@string.Join(", ", item.Key.Variants)</td>
                                 <td>@item.Key.Price</td>
                                 <td>@item.Value</td>
                                 <td>đ @(item.Key.Price* item.Value)</td>
@@ -77,8 +77,8 @@
             <strong>Lưu ý:</strong> Vui lòng kiểm tra kỹ hoá đơn trước khi thanh toán.
         </p>
         <div class="text-center">
-            <button id="checkout_cart"
-                class="btn btn-dark btn-outline-gray hvr-sweep-to-right dark-sweep"><i class="bi bi-credit-card-fill me-1"></i>
+            <button id="checkout_cart" class="btn btn-dark btn-outline-gray hvr-sweep-to-right dark-sweep"><i
+                    class="bi bi-credit-card-fill me-1"></i>
                 Thanh toán</button>
         </div>
     </div>

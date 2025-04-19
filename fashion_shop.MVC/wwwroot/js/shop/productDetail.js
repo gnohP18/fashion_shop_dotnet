@@ -1,4 +1,6 @@
 $(document).ready(function () {
+    const isVariant = $('#is_variant').val();
+
     const selectDefaultProductVariant = () => {
         const $productVariants = $(".product-variant");
 
@@ -31,6 +33,8 @@ $(document).ready(function () {
             .toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }));
 
         $("#main_image").attr("src", $productItem.data("image"));
+
+        $(".add-to-cart-btn").attr("data-productitem-id", $productItem.val());
     })
 
     const getSelectionVariant = () => {
@@ -50,14 +54,15 @@ $(document).ready(function () {
     $(".add-to-cart-btn").on("click", function (e) {
         e.preventDefault();
 
-        const productId = $(this).data("product-id");
+        const productItemId = $(this).data("productitem-id");
+        console.log(productItemId);
 
         $.ajax({
-            url: `/cart/add-to-cart?productId=${productId}`,
+            url: `/cart/add-to-cart?productItemId=${productItemId}`,
             type: "GET",
             success: function (response) {
                 //    
-                console.log(productId);
+                console.log(productItemId);
 
             },
             error: function () {
@@ -66,5 +71,9 @@ $(document).ready(function () {
         });
     });
 
-    selectDefaultProductVariant();
+    if (isVariant.toLowerCase() === "true") {
+        selectDefaultProductVariant();
+    } else {
+        $(".add-to-cart-btn").attr("data-productitem-id", $('#_').val());
+    }
 });

@@ -43,16 +43,33 @@ namespace fashion_shop.Infrastructure.Services
                 ImageUrl = request.ImageUrl,
             };
 
-            if (request.IsVariant && request.ProductVariants.Count > 0 && request.Variants.Count > 0)
+            if (request.IsVariant)
             {
-                // Handle create variant
-                var productVariants = GenerateProductVariant(request.ProductVariants, request.Variants);
+                if (request.ProductVariants.Count > 0 && request.Variants.Count > 0)
+                {
+                    // Handle create variant
+                    var productVariants = GenerateProductVariant(request.ProductVariants, request.Variants);
 
-                product.ProductVariants = productVariants;
+                    product.ProductVariants = productVariants;
 
-                var variantGroups = GenerateCombinations(productVariants.Select(p => p.Variants.Select(v => v.Code).ToList()).ToList());
+                    var variantGroups = GenerateCombinations(productVariants.Select(p => p.Variants.Select(v => v.Code).ToList()).ToList());
 
-                product.ProductItems = PrepareProductItemData(variantGroups);
+                    product.ProductItems = PrepareProductItemData(variantGroups);
+                }
+            }
+            else
+            {
+                // we create only one productItem
+                product.ProductItems = new HashSet<ProductItem>()
+                {
+                    new ProductItem
+                    {
+                        Code = "_",
+                        Price = request.Price,
+                        ImageUrl = "",
+                        Quantity = 0
+                    }
+                };
             }
 
             await _productRepository.AddAsync(product);
@@ -209,6 +226,7 @@ namespace fashion_shop.Infrastructure.Services
                 if (product is not null)
                 {
                     product.IsVariant = request.IsVariant;
+                    // After disabled all product variant, we create only one productItem
                     _productRepository.Update(product);
                 }
 
@@ -223,6 +241,7 @@ namespace fashion_shop.Infrastructure.Services
                 var productVariants = GenerateProductVariant(request.ProductVariants, request.Variants);
                 if (product is not null)
                 {
+                    await DisableProductVariant(id);
                     product.ProductVariants = productVariants;
 
                     var variantGroups = GenerateCombinations(productVariants.Select(p => p.Variants.Select(v => v.Code).ToList()).ToList());

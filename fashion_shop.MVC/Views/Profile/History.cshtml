@@ -13,7 +13,6 @@
                     <tr>
                         <th scope="col">#</th>
                         <th scope="col">Thành tiền</th>
-                        <th scope="col">Ghi chú</th>
                         <th scope="col">Ngày tạo</th>
                         <th scope="col">Thao tác</th>
                     </tr>
@@ -25,8 +24,7 @@
                         {
                             <tr>
                                 <th scope="row">@order.Id</th>
-                                <td>@order.TotalAmount</td>
-                                <td>@order.Note</td>
+                                <td>@Function.FormatVnd(order.TotalAmount)</td>
                                 <td>@order.CreatedAt</td>
                                 <td>
                                     <a href="/profile/order-detail?Id=@Uri.EscapeDataString(order.Id.ToString())"

@@ -2,13 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using fashion_shop.Core.DTOs.Common;
 using fashion_shop.Core.DTOs.Requests.User;
 using fashion_shop.Core.DTOs.Responses;
 using fashion_shop.Core.DTOs.Responses.User;
 using fashion_shop.Core.Exceptions;
 using fashion_shop.Core.Interfaces.Repositories;
 using fashion_shop.Core.Interfaces.Services;
+using fashion_shop.Infrastructure.Common;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace fashion_shop.Infrastructure.Services
 {
@@ -16,13 +19,16 @@ namespace fashion_shop.Infrastructure.Services
     {
         private readonly IOrderRepository _orderRepository;
         private readonly IOrderDetailRepository _orderDetailRepository;
+        private readonly MinioSettings _minioSettings;
 
         public OrderService(
             IOrderRepository orderRepository,
+            IOptions<MinioSettings> options,
             IOrderDetailRepository orderDetailRepository)
         {
-            _orderRepository = orderRepository;
-            _orderDetailRepository = orderDetailRepository;
+            _orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+            _orderDetailRepository = orderDetailRepository ?? throw new ArgumentNullException(nameof(orderDetailRepository));
+            _minioSettings = options.Value ?? throw new ArgumentNullException(nameof(options));
         }
 
         public async Task<PaginationData<OrderDto>> GetHistoryOrderAsync(int userId, GetHistoryOrderRequest request)
@@ -70,16 +76,26 @@ namespace fashion_shop.Infrastructure.Services
                 .Queryable
                 .AsNoTracking()
                 .Include(o => o.Product)
+                .Include(o => o.ProductItem)
                 .Where(o => o.OrderId == order.Id)
                 .Select(o => new OrderDetailDto()
                 {
                     OrderId = o.OrderId,
                     ProductId = o.ProductId,
+                    ProductItemCode = o.ProductItem.Code,
+                    ProductItemId = o.ProductItemId,
+                    ProductSlug = o.Product.Slug,
                     ProductName = o.ProductName,
                     Quantity = o.Quantity,
                     Price = o.Price,
-                    ImageUrl = o.Product.ImageUrl ?? "https://picsum.photos/64"
+                    ImageUrl = !string.IsNullOrWhiteSpace(o.ProductItem.ImageUrl) ?
+                        $"{_minioSettings.Endpoint}/{_minioSettings.BucketName}/{o.ProductItem.ImageUrl}" : ProductConstant.DefaultImage200
                 }).ToListAsync();
+
+            orderDetails.ForEach(orderDetail =>
+            {
+                orderDetail.Variants = orderDetail.ProductItemCode == "_" ? new List<string>() : orderDetail.ProductItemCode.Split("_").ToList();
+            });
 
             return new OrderDetailResponse()
             {
