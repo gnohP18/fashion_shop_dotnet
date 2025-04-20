@@ -1,0 +1,39 @@
+@{
+    string currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? string.Empty;
+    string currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? string.Empty;
+}
+
+<div class="card p-3">
+    <h5 class="mb-3 fw-bold">Điều hướng</h5>
+    <ul class="nav flex-column">
+
+        <!-- Bảng điều khiển -->
+        <li class="nav-item">
+            <a class="nav-link d-flex align-items-center gap-2 
+                @(currentController == "Profile" && currentAction == "Index" ? "border-start border-3 border-danger bg-danger bg-opacity-10 text-dark fw-semibold" : "text-muted")"
+                asp-controller="Profile" asp-action="Index">
+                <i class="bi bi-grid-fill"></i> Bảng điều khiển
+            </a>
+        </li>
+
+        <!-- Lịch sử mua hàng -->
+        <li class="nav-item">
+            <a class="nav-link d-flex align-items-center gap-2 
+                @(currentController == "Profile" && currentAction == "History" ? "border-start border-3 border-danger bg-danger bg-opacity-10 text-dark fw-semibold" : "text-muted")"
+                asp-controller="Profile" asp-action="History">
+                <i class="bi bi-arrow-repeat"></i> Lịch sử mua hàng
+            </a>
+        </li>
+
+        <!-- Đăng xuất -->
+        <li class="nav-item">
+            <form asp-area="Identity" asp-page="/Account/Logout"
+                asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post" class="m-0">
+                <button type="submit" class="nav-link  d-flex align-items-center gap-2 text-muted">
+                    <i class="bi bi-box-arrow-right"></i> Đăng xuất
+                </button>
+            </form>
+        </li>
+
+    </ul>
+</div>

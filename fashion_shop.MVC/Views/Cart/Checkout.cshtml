@@ -1,0 +1,90 @@
+@using fashion_shop.Core.DTOs.Requests.Admin
+@using fashion_shop.Core.Entities
+@{
+    var cartItems = ViewBag.CartItems as Dictionary<CartItemDto, int>;
+    var userProfile = ViewBag.UserProfile as User;
+    var basicInfo = ViewBag.BasicInfo as BasicInfoSettingResponse;
+}
+
+<div class="container my-5">
+    <div class="card shadow rounded p-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <h2 class="fw-bold">Hoá đơn</h2>
+            <div class="text-end">
+                <strong>Hoá đơn:</strong> @DateTime.UtcNow.ToString("yyyyMMddhhssmm")<br />
+                <strong>Ngày:</strong> @DateTime.UtcNow.ToString("dd-MM-yyyy")
+            </div>
+        </div>
+        <hr />
+        <div class="row">
+            <div class="col-md-6">
+                <h5 class="fw-bold">Bên xuất hoá đơn:</h5>
+                <p class="mb-0">@basicInfo?.ShopName</p>
+                <p class="mb-0">@basicInfo?.ShopAddress</p>
+                <p class="mb-0">Email: @basicInfo?.ShopEmail</p>
+                <p class="mb-0">SDT: @basicInfo?.ShopPhone</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <h5 class="fw-bold">Bên thanh toán</h5>
+                <p class="mb-0">@userProfile?.UserName</p>
+                <p class="mb-0">@userProfile?.PhoneNumber</p>
+                <p class="mb-0">@userProfile?.Email</p>
+            </div>
+        </div>
+
+        @if (cartItems is not null && cartItems?.Count() > 0)
+        {
+            <div class="table-responsive mt-4">
+                <table class="table table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Sản phẩm</th>
+                            <th>Mô tả</th>
+                            <th class="text-end">Giá</th>
+                            <th class="text-end">Số lượng</th>
+                            <th class="text-end">Thành tiền(đ)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            var total = 0;
+                        }
+                        @foreach (var item in cartItems)
+                        {
+                            total += item.Key.Price * item.Value;
+                            <tr class="product-row">
+                                <td>@item.Key.ProductName</td>
+                                <td>@string.Join(", ", item.Key.Variants)</td>
+                                <td class="text-end">@item.Key.Price</td>
+                                <td class="text-end">@item.Value</td>
+                                <td class="text-end">@Function.FormatVnd(item.Key.Price* item.Value)</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="4" class="text-end">Thành tiền:</th>
+                            <td class="text-end">@Function.FormatVnd(total)</td>
+                        </tr>
+                        <tr>
+                            <th colspan="4" class="text-end fw-bold">Tổng cộng:</th>
+                            <td class="fw-bold text-end">@Function.FormatVnd(total)</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        }
+
+        <p class="text-muted">
+            <strong>Lưu ý:</strong> Vui lòng kiểm tra kỹ hoá đơn trước khi thanh toán.
+        </p>
+        <div class="text-center">
+            <button id="checkout_cart" class="btn btn-dark btn-outline-gray hvr-sweep-to-right dark-sweep"><i
+                    class="bi bi-credit-card-fill me-1"></i>
+                Thanh toán</button>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script src="~/js/cart/cart.js"></script>
+}

@@ -8,6 +8,7 @@ using fashion_shop.Core.Entities;
 using fashion_shop.Core.Exceptions;
 using fashion_shop.Core.Interfaces.Repositories;
 using fashion_shop.Core.Interfaces.Services;
+using fashion_shop.Infrastructure.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Minio;
@@ -23,17 +24,20 @@ namespace fashion_shop.Infrastructure.Services
         private readonly MinioSettings _minio;
         private readonly IMediaFileRepository _mediaFileRepository;
         private readonly IProductRepository _productRepository;
+        private readonly IProductItemRepository _productItemRepository;
 
         public MediaFileService(
             IOptions<MinioSettings> options,
             IMinioClient minioClient,
             IMediaFileRepository mediaFileRepository,
-            IProductRepository productRepository)
+            IProductRepository productRepository,
+            IProductItemRepository productItemRepository)
         {
             _minio = options.Value ?? throw new ArgumentNullException(nameof(options));
             _minioClient = minioClient ?? throw new ArgumentNullException(nameof(minioClient));
             _mediaFileRepository = mediaFileRepository ?? throw new ArgumentNullException(nameof(mediaFileRepository));
             _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
+            _productItemRepository = productItemRepository ?? throw new ArgumentNullException(nameof(productItemRepository));
         }
 
         public async Task<string> CreatePresignedUrlAsync(CreatePresignedUrlRequest request, string objectType, int objectId)
@@ -133,6 +137,7 @@ namespace fashion_shop.Infrastructure.Services
 
             if (mediaFile.S3Key is not null)
             {
+                System.Console.WriteLine(mediaFile.S3Key);
                 await UpdateImageUrl(mediaFile.ObjectType, mediaFile.ObjectId, mediaFile.S3Key);
             }
 
@@ -141,7 +146,9 @@ namespace fashion_shop.Infrastructure.Services
 
         private async Task CheckExistMediaFileRecord(string objectType, int objectId, string s3Key)
         {
-            var existedRecord = await _mediaFileRepository.Queryable
+            var existedRecord = await _mediaFileRepository
+                .Queryable
+                .WithoutDeleted()
                 .FirstOrDefaultAsync(_ => _.ObjectId == objectId && _.ObjectType == objectType);
 
             if (existedRecord is not null)
@@ -158,7 +165,10 @@ namespace fashion_shop.Infrastructure.Services
             switch (objectType)
             {
                 case "product":
-                    var product = await _productRepository.Queryable.FirstOrDefaultAsync(_ => _.Id == objectId);
+                    var product = await _productRepository
+                        .Queryable
+                        .WithoutDeleted()
+                        .FirstOrDefaultAsync(_ => _.Id == objectId);
 
                     if (product is null)
                     {
@@ -166,12 +176,28 @@ namespace fashion_shop.Infrastructure.Services
                     }
 
                     product.ImageUrl = imageUrl;
+                    _productRepository.Update(product);
+
+                    break;
+
+                case "productitem":
+                    var productItem = await _productItemRepository
+                        .Queryable
+                        .WithoutDeleted()
+                        .FirstOrDefaultAsync(_ => _.Id == objectId);
+
+                    if (productItem is null)
+                    {
+                        throw new NotFoundException($"Not Found ProductItem Id={objectId}");
+                    }
+
+                    productItem.ImageUrl = imageUrl;
+                    _productItemRepository.Update(productItem);
 
                     break;
                 default:
                     throw new NotSupportedException($"ObjectType '{objectType}' is not supported.");
             }
-
         }
     }
 }

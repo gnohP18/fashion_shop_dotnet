@@ -1,0 +1,82 @@
+@using fashion_shop.Core.DTOs.Responses.User
+@{
+    var orderDetail = ViewBag.OrderDetail as OrderDetailResponse;
+    var profile = ViewBag.Profile as User;
+    var basicInfo = ViewBag.BasicInfo as BasicInfoSettingResponse;
+}
+<div class="container my-5">
+    <div class="card shadow rounded p-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <h2 class="fw-bold">Hoá đơn</h2>
+            <div class="text-end">
+                <strong>Hoá đơn:</strong> @orderDetail?.OrderId<br />
+                <strong>Ngày:</strong> @orderDetail?.CreatedAt
+            </div>
+        </div>
+        <hr />
+        <div class="row">
+            <div class="col-md-6">
+                <h5 class="fw-bold">Bên xuất hoá đơn:</h5>
+                <p class="mb-0">@basicInfo?.ShopName</p>
+                <p class="mb-0">@basicInfo?.ShopAddress</p>
+                <p class="mb-0">Email: @basicInfo?.ShopEmail</p>
+                <p class="mb-0">SDT: @basicInfo?.ShopPhone</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <h5 class="fw-bold">Bên thanh toán</h5>
+                <p class="mb-0">@profile?.UserName</p>
+                <p class="mb-0">@profile?.PhoneNumber</p>
+                <p class="mb-0">@profile?.Email</p>
+            </div>
+        </div>
+
+        @if (orderDetail?.OrderDetail is not null && orderDetail.OrderDetail?.Count() > 0)
+        {
+            <div class="table-responsive mt-4">
+                <table class="table table-bordered w-100 fixed">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 30%;">Sản phẩm</th>
+                            <th style="width: 10%;" class="text-center">Mô tả</th>
+                            <th style="width: 10%;" class="text-end">Giá</th>
+                            <th style="width: 10%;" class="text-end">Số lượng</th>
+                            <th style="width: 20%;" class="text-end">Thành tiền(đ)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            var total = 0;
+                        }
+                        @foreach (var item in orderDetail.OrderDetail)
+                        {
+                            total += item.Price * item.Quantity;
+                            <tr>
+                                <td class="d-flex flex-row gap-2">
+                                    <div class="col-3">
+                                        <img class="w-100 h-100" src="@item.ImageUrl" alt="@item.ProductName">
+                                    </div>
+                                    <a class="fs-6" asp-controller="Shop" asp-action="Detail"
+                                        asp-route-id="@item.ProductSlug">@item.ProductName</a>
+                                </td>
+                                <td>@string.Join(", ", item.Variants)</td>
+                                <td class="text-end">@Function.FormatVnd(item.Price)</td>
+                                <td class="text-end">@item.Quantity</td>
+                                <td class="text-end">@Function.FormatVnd(item.Price * item.Quantity)</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="4" class="text-end">Thành tiền:</th>
+                            <td class="text-end">@Function.FormatVnd(total)</td>
+                        </tr>
+                        <tr>
+                            <th colspan="4" class="text-end fw-bold">Tổng cộng:</th>
+                            <td class="fw-bold text-end">@Function.FormatVnd(total)</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        }
+    </div>
+</div>

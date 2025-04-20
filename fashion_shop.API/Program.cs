@@ -66,6 +66,14 @@ if (args.Contains("--seed-product"))
     return;
 }
 
+if (args.Contains("--seed-setting"))
+{
+    using var scope = app.Services.CreateScope();
+    await SettingSeeder.Seed(scope);
+
+    return;
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

@@ -19,9 +19,13 @@ namespace fashion_shop.Infrastructure.Extensions
         {
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<IProductItemService, ProductItemService>();
             services.AddScoped<IAdminAuthService, AdminAuthService>();
-            services.AddSingleton<ITokenService, TokenService>();
+            services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IMediaFileService, MediaFileService>();
+            services.AddScoped<ICartService, CartService>();
+            services.AddScoped<IOrderService, OrderService>();
+            services.AddScoped<ISettingService, SettingService>();
 
             return services;
         }
@@ -31,6 +35,12 @@ namespace fashion_shop.Infrastructure.Extensions
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IMediaFileRepository, MediaFileRepository>();
+            services.AddScoped<IOrderRepository, OrderRepository>();
+            services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
+            services.AddScoped<IProductVariantRepository, ProductVariantRepository>();
+            services.AddScoped<IProductItemRepository, ProductItemRepository>();
+            services.AddScoped<IVariantRepository, VariantRepository>();
+            services.AddScoped<ISettingRepository, SettingRepository>();
 
             return services;
         }
@@ -58,7 +68,6 @@ namespace fashion_shop.Infrastructure.Extensions
                     .WithSSL(false)
                     .Build();
             });
-            services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             return services;
         }

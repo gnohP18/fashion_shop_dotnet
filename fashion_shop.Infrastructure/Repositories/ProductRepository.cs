@@ -38,8 +38,13 @@ public class ProductRepository : IProductRepository
         throw new NotImplementedException();
     }
 
-    public void Update(Product entity)
+    public void DeleteMany(List<Product> entities)
     {
         throw new NotImplementedException();
+    }
+
+    public void Update(Product entity)
+    {
+        _dbContext.Products.Update(entity);
     }
 }
