@@ -1,0 +1,17 @@
+@{
+    var basicInfo = ViewBag.BasicInfo as BasicInfoSettingResponse;
+}
+<footer id="footer" class="border-top">
+    <div class="container-lg">
+        <div class="row d-flex flex-row align-items-center">
+            <div class="col-md-6">
+                <p>© Copyright @basicInfo?.ShopName 2025.</p>
+            </div>
+            <div class="col-md-6 text-lg-end">
+                <p>Power by <a href="https://github.com/gnohP18" target="_blank">@basicInfo?.ShopName</a><br>
+                    Distributed by <a href="https://www.linkedin.com/in/nguyen-hoang-phong-shuba/" target="blank">Nguyen
+                        Hoang Phong</a> </p>
+            </div>
+        </div>
+    </div>
+</footer>

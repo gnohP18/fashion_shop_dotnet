@@ -3,7 +3,9 @@
 @{
     var cartItems = ViewBag.CartItems as Dictionary<CartItemDto, int>;
     var userProfile = ViewBag.UserProfile as User;
+    var basicInfo = ViewBag.BasicInfo as BasicInfoSettingResponse;
 }
+
 <div class="container my-5">
     <div class="card shadow rounded p-4">
         <div class="d-flex justify-content-between align-items-center">
@@ -17,10 +19,10 @@
         <div class="row">
             <div class="col-md-6">
                 <h5 class="fw-bold">Bên xuất hoá đơn:</h5>
-                <p class="mb-0">Fashion Shop</p>
-                <p class="mb-0">Tam Ky</p>
-                <p class="mb-0">Quang Nam</p>
-                <p class="mb-0">Viet Nam</p>
+                <p class="mb-0">@basicInfo?.ShopName</p>
+                <p class="mb-0">@basicInfo?.ShopAddress</p>
+                <p class="mb-0">Email: @basicInfo?.ShopEmail</p>
+                <p class="mb-0">SDT: @basicInfo?.ShopPhone</p>
             </div>
             <div class="col-md-6 text-md-end">
                 <h5 class="fw-bold">Bên thanh toán</h5>
@@ -38,9 +40,9 @@
                         <tr>
                             <th>Sản phẩm</th>
                             <th>Mô tả</th>
-                            <th>Giá</th>
-                            <th>Số lượng</th>
-                            <th>Thành tiền(đ)</th>
+                            <th class="text-end">Giá</th>
+                            <th class="text-end">Số lượng</th>
+                            <th class="text-end">Thành tiền(đ)</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -53,20 +55,20 @@
                             <tr class="product-row">
                                 <td>@item.Key.ProductName</td>
                                 <td>@string.Join(", ", item.Key.Variants)</td>
-                                <td>@item.Key.Price</td>
-                                <td>@item.Value</td>
-                                <td>đ @(item.Key.Price* item.Value)</td>
+                                <td class="text-end">@item.Key.Price</td>
+                                <td class="text-end">@item.Value</td>
+                                <td class="text-end">@Function.FormatVnd(item.Key.Price* item.Value)</td>
                             </tr>
                         }
                     </tbody>
                     <tfoot>
                         <tr>
                             <th colspan="4" class="text-end">Thành tiền:</th>
-                            <td>đ @total</td>
+                            <td class="text-end">@Function.FormatVnd(total)</td>
                         </tr>
                         <tr>
                             <th colspan="4" class="text-end fw-bold">Tổng cộng:</th>
-                            <td class="fw-bold">đ @total</td>
+                            <td class="fw-bold text-end">@Function.FormatVnd(total)</td>
                         </tr>
                     </tfoot>
                 </table>

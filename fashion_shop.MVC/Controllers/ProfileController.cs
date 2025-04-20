@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using fashion_shop.Core.Common;
 using fashion_shop.Core.DTOs.Requests.User;
+using fashion_shop.Core.DTOs.Responses.User;
 using fashion_shop.Core.Entities;
 using fashion_shop.Core.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -19,16 +21,19 @@ namespace fashion_shop.MVC.Controllers
     {
         private readonly ILogger<ProfileController> _logger;
         private readonly IOrderService _orderService;
+        private readonly ISettingService _settingService;
         private readonly UserManager<User> _userManager;
 
         public ProfileController(
             ILogger<ProfileController> logger,
             IOrderService orderService,
-            UserManager<User> userManager)
+            UserManager<User> userManager,
+            ISettingService settingService)
         {
-            _logger = logger;
-            _orderService = orderService;
-            _userManager = userManager;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
+            _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+            _settingService = settingService ?? throw new ArgumentNullException(nameof(settingService));
         }
 
         [HttpGet("index")]
@@ -52,6 +57,7 @@ namespace fashion_shop.MVC.Controllers
 
             ViewBag.OrderDetail = orderDetail;
             ViewBag.Profile = await _userManager.GetUserAsync(User);
+            ViewBag.BasicInfo = await _settingService.GetSettingAsync<BasicInfoSettingResponse>(SettingPrefixConstants.BasicInfoPrefix);
 
             return View();
         }

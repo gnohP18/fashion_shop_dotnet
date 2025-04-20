@@ -22,7 +22,7 @@ $(document).ready(function () {
         const productId = $(this).data("product-id");
 
         $.ajax({
-            url: `/cart/remove-in-cart?productId=${productId}`,
+            url: `/cart/remove-in-cart?productItemId=${productId}`,
             type: "DELETE",
             success: function (response) {
                 $(`#product_row_${productId}`).remove();
@@ -46,7 +46,7 @@ $(document).ready(function () {
                 url: `/cart/checkout-cart`,
                 type: "POST",
                 success: function (response) {
-                    window.location.href = "/Cart/SuccessCheckout";
+                    window.location.href = "/cart/success-checkout";
                 },
                 error: function () {
                     // alert("Thêm vào giỏ hàng thất bại!");

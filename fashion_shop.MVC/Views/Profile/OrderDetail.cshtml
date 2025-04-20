@@ -2,6 +2,7 @@
 @{
     var orderDetail = ViewBag.OrderDetail as OrderDetailResponse;
     var profile = ViewBag.Profile as User;
+    var basicInfo = ViewBag.BasicInfo as BasicInfoSettingResponse;
 }
 <div class="container my-5">
     <div class="card shadow rounded p-4">
@@ -16,10 +17,10 @@
         <div class="row">
             <div class="col-md-6">
                 <h5 class="fw-bold">Bên xuất hoá đơn:</h5>
-                <p class="mb-0">Fashion Shop</p>
-                <p class="mb-0">Tam Ky</p>
-                <p class="mb-0">Quang Nam</p>
-                <p class="mb-0">Viet Nam</p>
+                <p class="mb-0">@basicInfo?.ShopName</p>
+                <p class="mb-0">@basicInfo?.ShopAddress</p>
+                <p class="mb-0">Email: @basicInfo?.ShopEmail</p>
+                <p class="mb-0">SDT: @basicInfo?.ShopPhone</p>
             </div>
             <div class="col-md-6 text-md-end">
                 <h5 class="fw-bold">Bên thanh toán</h5>
