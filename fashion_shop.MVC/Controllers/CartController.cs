@@ -5,6 +5,8 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
+using fashion_shop.Core.Common;
+using fashion_shop.Core.DTOs.Responses.User;
 using fashion_shop.Core.Entities;
 using fashion_shop.Core.Interfaces.Repositories;
 using fashion_shop.Core.Interfaces.Services;
@@ -30,19 +32,22 @@ public class CartController : Controller
     private readonly UserManager<User> _userManager;
     private readonly ICartService _cartService;
     private readonly IProductService _productService;
+    private readonly ISettingService _settingService;
 
     public CartController(
         ILogger<CartController> logger,
         SignInManager<User> signInManager,
         ICartService cartService,
         IProductService productService,
-        UserManager<User> userManager)
+        UserManager<User> userManager,
+        ISettingService settingService)
     {
-        _logger = logger;
-        _signInManager = signInManager;
-        _cartService = cartService;
-        _productService = productService;
-        _userManager = userManager;
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
+        _cartService = cartService ?? throw new ArgumentNullException(nameof(cartService));
+        _productService = productService ?? throw new ArgumentNullException(nameof(productService));
+        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+        _settingService = settingService ?? throw new ArgumentNullException(nameof(settingService));
     }
 
     [HttpGet("index")]
@@ -130,6 +135,7 @@ public class CartController : Controller
 
         ViewBag.CartItems = cartItemData;
         ViewBag.UserProfile = user;
+        ViewBag.BasicInfo = await _settingService.GetSettingAsync<BasicInfoSettingResponse>(SettingPrefixConstants.BasicInfoPrefix);
 
         return View();
     }
@@ -159,7 +165,7 @@ public class CartController : Controller
         {
             var resp = await _cartService.CheckoutCartAsync(Int32.Parse(userId), cart.ToDictionary(item => item.ProductItemId, item => item.Quantity));
 
-            if (true)
+            if (resp)
             {
                 Response.Cookies.Append(cartId, JsonSerializer.Serialize(new List<CartItem>()), new CookieOptions
                 {
@@ -168,14 +174,12 @@ public class CartController : Controller
                     SameSite = SameSiteMode.Lax,
                     Expires = DateTimeOffset.UtcNow.AddDays(30)
                 });
+
+                return Ok();
             }
         }
-        else
-        {
-            return BadRequest("Cart empty");
-        }
 
-        return BadRequest();
+        return BadRequest("Cart empty");
     }
 
 

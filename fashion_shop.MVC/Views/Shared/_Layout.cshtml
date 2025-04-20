@@ -121,52 +121,6 @@
     </div>
 
     <header id="header" class="site-header text-black">
-        @* <div class="header-top border-bottom py-2">
-            <div class="container-lg">
-                <div class="row justify-content-evenly">
-                    <div class="col">
-                        <ul class="social-links list-unstyled d-flex m-0">
-                            <li class="pe-2">
-                                <a href="https://www.facebook.com/tk.sin.33/">
-                                    <svg class="facebook" width="20" height="20">
-                                        <use xlink:href="#facebook"></use>
-                                    </svg>
-                                </a>
-                            </li>
-                            <li class="pe-2">
-                                <a href="https://www.instagram.com/ph0z9_18/">
-                                    <svg class="instagram" width="20" height="20">
-                                        <use xlink:href="#instagram"></use>
-                                    </svg>
-                                </a>
-                            </li>
-                            <li class="pe-2">
-                                <a href="#">
-                                    <svg class="youtube" width="20" height="20">
-                                        <use xlink:href="#youtube"></use>
-                                    </svg>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#">
-                                    <svg class="pinterest" width="20" height="20">
-                                        <use xlink:href="#pinterest"></use>
-                                    </svg>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div class="col">
-                        <ul class="d-flex justify-content-end gap-3 list-unstyled m-0">
-                            <li>
-                                <partial name="_LoginPartial" />
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div> *@
         <nav id="header-nav" class="navbar navbar-expand-lg">
             <div class="container">
                 <a class="navbar-brand" asp-action="Index" asp-controller="Home">
@@ -234,20 +188,8 @@
         @RenderBody()
     </main>
 
-    <footer id="footer" class="border-top">
-        <div class="container-lg">
-            <div class="row d-flex flex-row align-items-center">
-                <div class="col-md-6">
-                    <p>© Copyright Stylish 2025.</p>
-                </div>
-                <div class="col-md-6 text-lg-end">
-                    <p>Power by <a href="https://github.com/gnohP18" target="_blank">Shubanoname</a><br>
-                        Distributed by <a href="https://www.linkedin.com/in/nguyen-hoang-phong-shuba/"
-                            target="blank">Nguyen Hoang Phong</a> </p>
-                </div>
-            </div>
-        </div>
-    </footer>
+    @await Component.InvokeAsync("Footer")
+
     <script src="~/js/jquery-1.11.0.min.js"></script>
     <script src="~/js/plugins.js"></script>
     <script src="~/js/script.js"></script>

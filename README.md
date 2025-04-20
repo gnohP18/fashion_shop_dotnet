@@ -40,6 +40,12 @@ Seed Product
 dotnet run --project fashion_shop.API -- --seed-product
 ```
 
+Seed Setting
+
+```sh
+dotnet run --project fashion_shop.API -- --seed-setting
+```
+
 ## How to run  🎉 🎉 🎉
 
 ### Run local
@@ -74,7 +80,7 @@ Your port, database name, accoutn(Postgresql) must be `the same` with your `apps
 For examople:
 Database Postgresql will have below connection string
 
-```
+```json
 Host=database;port=5432;username=root;password=root;database=fashion_shop
 ```
 

@@ -25,6 +25,7 @@ namespace fashion_shop.Infrastructure.Extensions
             services.AddScoped<IMediaFileService, MediaFileService>();
             services.AddScoped<ICartService, CartService>();
             services.AddScoped<IOrderService, OrderService>();
+            services.AddScoped<ISettingService, SettingService>();
 
             return services;
         }
@@ -39,6 +40,7 @@ namespace fashion_shop.Infrastructure.Extensions
             services.AddScoped<IProductVariantRepository, ProductVariantRepository>();
             services.AddScoped<IProductItemRepository, ProductItemRepository>();
             services.AddScoped<IVariantRepository, VariantRepository>();
+            services.AddScoped<ISettingRepository, SettingRepository>();
 
             return services;
         }
