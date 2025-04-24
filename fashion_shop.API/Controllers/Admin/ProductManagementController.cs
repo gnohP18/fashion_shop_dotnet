@@ -9,10 +9,12 @@ using fashion_shop.Core.Entities;
 using fashion_shop.Core.Interfaces.Services;
 using fashion_shop.Core.Exceptions;
 using Microsoft.AspNetCore.Mvc;
+using fashion_shop.API.Attributes;
 
 namespace fashion_shop.API.Controllers.Admin
 {
     [ApiController]
+    [Authenticate]
     [Tags("Product Management")]
     [Route("api/product-management")]
     public class ProductManagementController : APIController<ProductManagementController>

@@ -7,6 +7,7 @@ namespace fashion_shop.Core.DTOs.Responses.Admin;
 
 public class AdminLoginResponse
 {
-    public string AccessToken { get; set; } = default!;
-    public string RefreshToken { get; set; } = default!;
+    public string access_token { get; set; } = default!;
+    public string refresh_token { get; set; } = default!;
+    public int expires_in { get; set; }
 }

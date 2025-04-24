@@ -123,7 +123,7 @@ namespace fashion_shop.Infrastructure.Services
             return variants.Select(v => new Variant()
             {
                 Value = v.Value,
-                Code = v.Value.ToLower()
+                Code = v.Code.ToLower()
             }).ToHashSet();
         }
 
@@ -196,8 +196,19 @@ namespace fashion_shop.Infrastructure.Services
                 .Queryable
                 .WithoutDeleted()
                 .FirstAsync(p => p.Id == id);
+            var oldSlug = ExtractPrefix(product.Slug);
 
             var productMapper = _mapper.Map(request, product);
+            System.Console.WriteLine("{0} {1}", oldSlug, request.Slug);
+            if (!string.Equals(oldSlug, request.Slug, StringComparison.OrdinalIgnoreCase))
+            {
+                System.Console.WriteLine(111111);
+                productMapper.Slug = Core.Common.Function.GenerateSlugProduct(request.Slug);
+            }
+            else
+            {
+                request.Slug = product.Slug; // Giữ nguyên slug cũ
+            }
 
             _productRepository.Update(productMapper);
             await _productRepository.UnitOfWork.SaveChangesAsync();
@@ -304,5 +315,24 @@ namespace fashion_shop.Infrastructure.Services
             _variantRepository.DeleteMany(variants);
             _productItemRepository.DeleteMany(productItems);
         }
+
+        /// <summary>
+        /// Extract Slug Ex: ao-thun-11231231 -> ao-thun
+        /// </summary>
+        /// <param name="slug"></param>
+        /// <returns></returns>
+        private string ExtractPrefix(string slug)
+        {
+            if (string.IsNullOrWhiteSpace(slug)) return "";
+
+            var lastDash = slug.LastIndexOf("-");
+            if (lastDash == -1) return slug;
+
+            var suffix = slug[(lastDash + 1)..];
+
+            return long.TryParse(suffix, out _) ? slug[..lastDash] : slug;
+        }
+
     }
+
 }
