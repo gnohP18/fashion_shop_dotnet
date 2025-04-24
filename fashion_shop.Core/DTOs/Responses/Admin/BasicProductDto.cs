@@ -9,4 +9,5 @@ public class BasicProductDto
     public string? ImageUrl { get; set; }
     public int CategoryId { get; set; }
     public string CategoryName { get; set; } = default!;
+    public bool IsVariant { get; set; }
 }

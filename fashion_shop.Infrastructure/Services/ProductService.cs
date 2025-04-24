@@ -58,8 +58,8 @@ public partial class ProductService : IProductService
         if (!string.IsNullOrEmpty(request.KeySearch))
         {
             query = query.Where(
-                x => x.Name.ToLower() == request.KeySearch.ToLower() ||
-                x.Slug.ToLower() == request.KeySearch.ToLower());
+                x => EF.Functions.ILike(x.Name, $"%{request.KeySearch}%") ||
+                    EF.Functions.ILike(x.Slug, request.KeySearch));
         }
 
         if (!string.IsNullOrWhiteSpace(request.CategorySlug))
@@ -83,9 +83,10 @@ public partial class ProductService : IProductService
                 Slug = p.Slug,
                 Price = p.Price,
                 ImageUrl = !string.IsNullOrWhiteSpace(p.ImageUrl) ?
-                    $"{_minioSettings.Endpoint}/{_minioSettings.BucketName}/{p.ImageUrl}" : ProductConstant.DefaultImage600,
+                    $"http://{_minioSettings.Endpoint}/{_minioSettings.BucketName}/{p.ImageUrl}" : ProductConstant.DefaultImage600,
                 CategoryId = p.CategoryId,
                 CategoryName = p.Category.Name,
+                IsVariant = p.IsVariant
             })
             .ToListAsync();
 
@@ -105,11 +106,43 @@ public partial class ProductService : IProductService
                 Name = p.Name,
                 Slug = p.Slug,
                 Price = p.Price,
-                ImageUrl = $"{_minioSettings.Endpoint}/{_minioSettings.BucketName}/{p.ImageUrl}",
+                ImageUrl = !string.IsNullOrWhiteSpace(p.ImageUrl)
+                    ? $"http://{_minioSettings.Endpoint}/{_minioSettings.BucketName}/{p.ImageUrl}" : ProductConstant.DefaultImage600,
                 CategoryId = p.CategoryId,
                 CategoryName = p.Category.Name,
                 IsVariant = p.IsVariant,
                 Description = p.Description,
+                ProductVariants = p.ProductVariants
+                    .AsQueryable()
+                    .AsNoTracking()
+                    .Where(pv => !pv.IsDeleted)
+                    .Select(pv => new ProductVariantDto
+                    {
+                        Name = pv.Name,
+                        Priority = pv.Priority,
+                        Variants = pv.Variants
+                                .AsQueryable()
+                                .AsNoTracking()
+                                .Where(v => !v.IsDeleted)
+                                .Select(v => new VariantDto
+                                {
+                                    Code = v.Code,
+                                    Value = v.Value
+                                }).ToList()
+                    }).ToList(),
+                ProductItems = p.ProductItems
+                .AsQueryable()
+                .AsNoTracking()
+                .Where(i => !i.IsDeleted)
+                .Select(i => new ProductItemDto()
+                {
+                    Id = i.Id,
+                    ProductId = i.ProductId,
+                    Code = i.Code,
+                    Price = i.Price,
+                    ImageUrl = !string.IsNullOrEmpty(i.ImageUrl) ?
+                        $"http://{_minioSettings.Endpoint}/{_minioSettings.BucketName}/{i.ImageUrl}" : ProductConstant.DefaultImage600,
+                }).ToList()
             }).FirstOrDefaultAsync(p => p.Id == id);
 
         return productDto ?? null;
@@ -145,7 +178,7 @@ public partial class ProductService : IProductService
                 Slug = p.Slug,
                 Price = p.Price,
                 ImageUrl = !string.IsNullOrWhiteSpace(p.ImageUrl)
-                    ? $"{_minioSettings.Endpoint}/{_minioSettings.BucketName}/{p.ImageUrl}" : ProductConstant.DefaultImage600,
+                    ? $"http://{_minioSettings.Endpoint}/{_minioSettings.BucketName}/{p.ImageUrl}" : ProductConstant.DefaultImage600,
                 CategoryId = p.CategoryId,
                 CategoryName = p.Category.Name,
                 IsVariant = p.IsVariant,
@@ -179,7 +212,7 @@ public partial class ProductService : IProductService
                     Code = i.Code,
                     Price = i.Price,
                     ImageUrl = !string.IsNullOrEmpty(i.ImageUrl) ?
-                        $"{_minioSettings.Endpoint}/{_minioSettings.BucketName}/{i.ImageUrl}" : ProductConstant.DefaultImage600,
+                        $"http://{_minioSettings.Endpoint}/{_minioSettings.BucketName}/{i.ImageUrl}" : ProductConstant.DefaultImage600,
                 }).ToList()
             }).FirstOrDefaultAsync(p => p.Slug == slug.ToLower());
     }

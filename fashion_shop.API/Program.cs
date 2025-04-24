@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Minio;
 using SampleDotNet.Api.Middlewares;
+using static fashion_shop.API.Attributes.AuthenticateAttribute;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -23,6 +24,7 @@ services.AddControllers().AddJsonOptions(options =>
 );
 
 //------------------------------ Service & Repo & Infra ----------------------------------//
+services.AddScoped<IAuthenticationFilterService, AuthenticationFilterService>();
 services.AddInfrastructure(builder.Configuration);
 services.AddServices();
 services.AddRepositories();
@@ -47,9 +49,20 @@ services.AddIdentity<User, Role>(options =>
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
+//------------------------------ CORS ----------------------------------//
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 //------------------------------ CLI & Seeder ----------------------------------//
 var app = builder.Build();
-
+app.UseCors("AllowAll");
 if (args.Contains("--seed-user"))
 {
     using var scope = app.Services.CreateScope();
@@ -81,7 +94,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 app.UseRegisterMiddleware();
 app.MapControllers();
 app.Run();

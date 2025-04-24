@@ -17,6 +17,8 @@ using fashion_shop.Core.Exceptions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
+using fashion_shop.Core.DTOs.Common;
+using Microsoft.Extensions.Options;
 
 namespace fashion_shop.Infrastructure.Services
 {
@@ -27,19 +29,23 @@ namespace fashion_shop.Infrastructure.Services
         private readonly ITokenService _tokenService;
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly UserManager<User> _userManager;
+        private readonly TokenSettings _tokenSettings;
+
 
         public AdminAuthService(
             ILogger<AdminAuthService> logger,
             IConnectionMultiplexer connectionMultiplexer,
             ITokenService tokenService,
             IPasswordHasher<User> passwordHasher,
-            UserManager<User> userManager)
+            UserManager<User> userManager,
+            IOptions<TokenSettings> tokenSettings)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _redis = connectionMultiplexer.GetDatabase() ?? throw new ArgumentNullException(nameof(connectionMultiplexer));
             _tokenService = tokenService ?? throw new ArgumentNullException(nameof(tokenService));
             _passwordHasher = passwordHasher ?? throw new ArgumentNullException(nameof(passwordHasher));
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+            _tokenSettings = tokenSettings.Value ?? throw new ArgumentNullException(nameof(tokenSettings.Value));
         }
 
         public async Task<AdminLoginResponse> LoginAsync(AdminLoginRequest request)
@@ -63,7 +69,7 @@ namespace fashion_shop.Infrastructure.Services
 
             if (resultCheckPassword == PasswordVerificationResult.Failed)
             {
-                throw new BadRequestException("Wrong Password");
+                throw new UnAuthorizedException("Wrong Password");
             }
 
             var jti = Guid.NewGuid().ToString();
@@ -78,8 +84,9 @@ namespace fashion_shop.Infrastructure.Services
 
             return new AdminLoginResponse
             {
-                AccessToken = accessToken,
-                RefreshToken = refreshToken
+                access_token = accessToken,
+                refresh_token = refreshToken,
+                expires_in = (_tokenSettings.AccessTokenExpirationHours + AuthConstant.BONUS_HOUR_REFRESH_TOKEN) * 60 * 60
             };
         }
 
@@ -143,8 +150,9 @@ namespace fashion_shop.Infrastructure.Services
 
             return new AdminLoginResponse
             {
-                AccessToken = accessToken,
-                RefreshToken = refreshToken
+                access_token = accessToken,
+                refresh_token = refreshToken,
+                expires_in = (_tokenSettings.AccessTokenExpirationHours + AuthConstant.BONUS_HOUR_REFRESH_TOKEN) * 60 * 60
             };
         }
     }
