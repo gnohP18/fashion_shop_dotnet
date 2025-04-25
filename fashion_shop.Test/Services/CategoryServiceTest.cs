@@ -34,7 +34,7 @@ public class CategoryServiceTest
         // Arrange
         var request = new GetCategoryRequest
         {
-            Name = "Category1",
+            KeySearch = "Category1",
             Page = 1,
             Offset = 10,
             SortBy = "Name",

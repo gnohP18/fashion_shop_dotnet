@@ -44,5 +44,13 @@ namespace fashion_shop.API.Controllers.Admin
 
             return OkResponse(response, "OK");
         }
+
+        [HttpGet("sync-redis")]
+        public async Task<ActionResult<string>> SyncRedis()
+        {
+            await _settingService.SyncRedisDataAsync();
+
+            return NoContentResponse<string>("Synchorinzed data");
+        }
     }
 }

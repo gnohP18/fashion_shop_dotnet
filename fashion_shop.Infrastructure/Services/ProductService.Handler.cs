@@ -1,20 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
-using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using fashion_shop.Core.DTOs.Common;
 using fashion_shop.Core.DTOs.Requests.Admin;
 using fashion_shop.Core.Entities;
 using fashion_shop.Core.Exceptions;
-using fashion_shop.Core.Interfaces.Repositories;
-using fashion_shop.Core.Interfaces.Services;
 using fashion_shop.Infrastructure.Common;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace fashion_shop.Infrastructure.Services
 {
@@ -42,7 +30,7 @@ namespace fashion_shop.Infrastructure.Services
                 IsVariant = request.IsVariant,
                 ImageUrl = request.ImageUrl,
             };
-
+            System.Console.WriteLine(request.IsVariant);
             if (request.IsVariant)
             {
                 if (request.ProductVariants.Count > 0 && request.Variants.Count > 0)
@@ -54,7 +42,7 @@ namespace fashion_shop.Infrastructure.Services
 
                     var variantGroups = GenerateCombinations(productVariants.Select(p => p.Variants.Select(v => v.Code).ToList()).ToList());
 
-                    product.ProductItems = PrepareProductItemData(variantGroups);
+                    product.ProductItems = PrepareProductItemData(variantGroups, request.Variants);
                 }
             }
             else
@@ -67,7 +55,8 @@ namespace fashion_shop.Infrastructure.Services
                         Code = "_",
                         Price = request.Price,
                         ImageUrl = "",
-                        Quantity = 0
+                        Quantity = 0,
+                        VariantObjects = new List<VariantObject>()
                     }
                 };
             }
@@ -90,6 +79,8 @@ namespace fashion_shop.Infrastructure.Services
 
             var newProductVariants = new HashSet<ProductVariant>();
 
+            var dataVariants = new HashSet<Variant>();
+
             productVariants.ForEach(productVariant =>
             {
                 var selectedVariant = variants.Where(v => v.Priority == productVariant.Priority).ToList();
@@ -102,6 +93,7 @@ namespace fashion_shop.Infrastructure.Services
 
                 var data = PrepareVariantData(selectedVariant);
 
+                dataVariants.Concat(data);
                 newProductVariants.Add(new ProductVariant()
                 {
                     Name = productVariant.Name,
@@ -109,6 +101,8 @@ namespace fashion_shop.Infrastructure.Services
                     Variants = data.ToHashSet()
                 });
             });
+
+            HasDuplicateCode(dataVariants);
 
             return newProductVariants;
         }
@@ -132,7 +126,7 @@ namespace fashion_shop.Infrastructure.Services
         /// </summary>
         /// <param name="variantGroups">List of List string Code</param>
         /// <returns></returns>
-        public static List<string> GenerateCombinations(List<List<string>> variantGroups)
+        public List<string> GenerateCombinations(List<List<string>> variantGroups)
         {
             var results = new List<string>();
 
@@ -148,7 +142,7 @@ namespace fashion_shop.Infrastructure.Services
         /// <param name="index"></param>
         /// <param name="current"></param>
         /// <param name="result"></param>
-        private static void GenerateRecursive(
+        private void GenerateRecursive(
             List<List<string>> groups,
             int index,
             List<string> current,
@@ -173,15 +167,36 @@ namespace fashion_shop.Infrastructure.Services
         /// </summary>
         /// <param name="productItemCodes">Code</param>
         /// <returns>HashSet ProductItem</returns>
-        private HashSet<ProductItem> PrepareProductItemData(List<string> productItemCodes)
+        private HashSet<ProductItem> PrepareProductItemData(List<string> productItemCodes, List<CreateVariantRequest> variantRequests)
         {
-            return productItemCodes.Select(code => new ProductItem
+            var data = new HashSet<ProductItem>();
+
+            productItemCodes.ForEach(productItemCode =>
             {
-                Code = code,
-                Price = 0,
-                ImageUrl = "",
-                Quantity = 0
-            }).ToHashSet();
+                var variantObjects = new List<VariantObject>();
+
+                productItemCode.Split("_").ToList().ForEach(variantCode =>
+                {
+                    variantObjects.Add(
+                        variantRequests.Where(vairant => vairant.Code == variantCode)
+                        .Select(v => new VariantObject
+                        {
+                            Value = v.Value,
+                            Code = v.Code
+                        }).First());
+                });
+
+                data.Add(new ProductItem
+                {
+                    Code = productItemCode,
+                    Price = 0,
+                    ImageUrl = "",
+                    Quantity = 0,
+                    VariantObjects = variantObjects
+                });
+            });
+
+            return data;
         }
 
         /// <summary>
@@ -199,10 +214,9 @@ namespace fashion_shop.Infrastructure.Services
             var oldSlug = ExtractPrefix(product.Slug);
 
             var productMapper = _mapper.Map(request, product);
-            System.Console.WriteLine("{0} {1}", oldSlug, request.Slug);
+
             if (!string.Equals(oldSlug, request.Slug, StringComparison.OrdinalIgnoreCase))
             {
-                System.Console.WriteLine(111111);
                 productMapper.Slug = Core.Common.Function.GenerateSlugProduct(request.Slug);
             }
             else
@@ -257,7 +271,7 @@ namespace fashion_shop.Infrastructure.Services
 
                     var variantGroups = GenerateCombinations(productVariants.Select(p => p.Variants.Select(v => v.Code).ToList()).ToList());
 
-                    product.ProductItems = PrepareProductItemData(variantGroups);
+                    product.ProductItems = PrepareProductItemData(variantGroups, request.Variants);
 
                     product.IsVariant = request.IsVariant;
                     _productRepository.Update(product);
@@ -333,6 +347,26 @@ namespace fashion_shop.Infrastructure.Services
             return long.TryParse(suffix, out _) ? slug[..lastDash] : slug;
         }
 
+        /// <summary>
+        /// Check dulicate code
+        /// </summary>
+        /// <param name="variants">variants</param>
+        /// <returns>true|false</returns>
+        private bool HasDuplicateCode(HashSet<Variant> variants)
+        {
+            var dulicateCodes = variants
+                .GroupBy(v => v.Code)
+                .Where(g => g.Count() > 1)
+                .Select(g => g.Key)
+                .ToList();
+
+            if (dulicateCodes.Any())
+            {
+                throw new BadRequestException("Duplicate Code: " + string.Join(", ", dulicateCodes));
+            }
+
+            return true;
+        }
     }
 
 }

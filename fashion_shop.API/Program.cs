@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using fashion_shop.API.Seeders;
 using fashion_shop.Core.DTOs.Common;
@@ -20,6 +21,7 @@ services.AddControllers().AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.IgnoreReadOnlyFields = true;
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
     }
 );
 

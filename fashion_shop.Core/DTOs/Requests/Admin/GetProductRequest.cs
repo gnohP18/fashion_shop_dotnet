@@ -9,5 +9,6 @@ namespace fashion_shop.Core.DTOs.Requests.Admin
     {
         public string? KeySearch { get; set; }
         public string? CategorySlug { get; set; }
+        public bool isAdmin { get; set; } = false;
     }
 }

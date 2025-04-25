@@ -1,24 +1,31 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using fashion_shop.Core.Common;
-using fashion_shop.Core.DTOs.Requests.Admin;
 using fashion_shop.Core.Entities;
 using fashion_shop.Core.Interfaces.Repositories;
 using fashion_shop.Core.Interfaces.Services;
 using fashion_shop.Infrastructure.Common;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using StackExchange.Redis;
 
 namespace fashion_shop.Infrastructure.Services;
 
 public class SettingService : ISettingService
 {
     private readonly ISettingRepository _settingRepository;
+    private readonly ICategoryRepository _categoryRepository;
+    private readonly IDatabase _redis;
+    private readonly ILogger _logger;
 
-    public SettingService(ISettingRepository settingRepository)
+
+    public SettingService(
+        ISettingRepository settingRepository,
+        ICategoryRepository categoryRepository,
+        IConnectionMultiplexer connectionMultiplexer,
+        ILogger<SettingService> logger)
     {
         _settingRepository = settingRepository ?? throw new ArgumentNullException(nameof(settingRepository));
+        _categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
+        _redis = connectionMultiplexer.GetDatabase() ?? throw new ArgumentNullException(nameof(connectionMultiplexer));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     public async Task<T> GetSettingAsync<T>(string prefix) where T : new()
@@ -77,5 +84,27 @@ public class SettingService : ISettingService
                 Name = $"{prefix}_{p.Name.ToLower()}",
                 Value = p.GetValue(request)?.ToString() ?? string.Empty
             }).ToList();
+    }
+
+    public async Task SyncRedisDataAsync()
+    {
+        await SyncCategoryAsync();
+    }
+
+    private async Task SyncCategoryAsync()
+    {
+        // Clear key
+        await _redis.KeyDeleteAsync(RedisConstant.CATEGORY_LIST);
+
+        // Sync Category slug
+        var slugOfcategories = await _categoryRepository.Queryable.Select(c => c.Slug).ToListAsync();
+
+        foreach (var slug in slugOfcategories)
+        {
+            var hashedSlug = Infrastructure.Common.Function.HashStringCRC32(slug);
+
+            _logger.LogInformation("Hashed {0} ===> {1}", slug, hashedSlug);
+            await _redis.StringSetBitAsync(RedisConstant.CATEGORY_LIST, hashedSlug, true);
+        }
     }
 }

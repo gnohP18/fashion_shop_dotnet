@@ -44,7 +44,7 @@ public class CategoryRepository : ICategoryRepository
 
     public void Update(Category entity)
     {
-        throw new NotImplementedException();
+        _dbContext.Categories.Update(entity);
     }
 
     public Task UpdateAsync(Category entity, CancellationToken cancellationToken = default)

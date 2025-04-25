@@ -16,5 +16,7 @@ public class CategoryMapper : Profile
         CreateMap<CreateCategoryRequest, Category>();
         CreateMap<Category, CreateCategoryResponse>();
         CreateMap<Category, CategoryDto>();
+        CreateMap<Category, BasicCategoryDto>();
+        CreateMap<UpdateCategoryRequest, Category>();
     }
 }

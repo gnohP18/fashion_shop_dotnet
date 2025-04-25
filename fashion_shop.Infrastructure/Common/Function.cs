@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.IO.Hashing;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace fashion_shop.Infrastructure.Common
@@ -46,6 +48,25 @@ namespace fashion_shop.Infrastructure.Common
             );
 
             return source.Provider.CreateQuery<T>(resultExpression);
+        }
+
+        /// <summary>
+        /// HashString using CRC32 algorithm
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns>uint hashValue</returns>
+        public static uint HashStringCRC32(string str)
+        {
+            // Convert it into bytes array
+            byte[] inputBytes = Encoding.UTF8.GetBytes(str);
+
+            // Using Crc32 to hash recent array
+            byte[] hashBytes = Crc32.Hash(inputBytes);
+
+            // convert it into unit
+            uint hashValue = BitConverter.ToUInt32(hashBytes, 0) % RedisConstant.MaxAllowUser;
+
+            return hashValue;
         }
     }
 }
