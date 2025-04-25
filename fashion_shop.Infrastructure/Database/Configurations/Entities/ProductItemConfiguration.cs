@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using fashion_shop.Core.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -35,9 +36,16 @@ public class ProductItemConfiguration : ConfigurationEntity<ProductItem>
                .WithOne(c => c.ProductItem)
                .HasForeignKey(p => p.ProductItemId)
                .OnDelete(DeleteBehavior.SetNull);
+
+        var options = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        };
+
+        builder.Property(p => p.VariantObjects)
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, options),
+                v => JsonSerializer.Deserialize<List<VariantObject>>(v, options) ?? new List<VariantObject>())
+            .HasColumnType("jsonb");
     }
 }
-
-// dotnet ef migrations add AddPaymentTransactionAndSettingTable --project fashion_shop.Infrastructure --startup-project fashion_shop.API
-// dotnet ef migrations remove  --project fashion_shop.Infrastructure --startup-project fashion_shop.API
-// dotnet ef database update --project fashion_shop.Infrastructure --startup-project fashion_shop.API

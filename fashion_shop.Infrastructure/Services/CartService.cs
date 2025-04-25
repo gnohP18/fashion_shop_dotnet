@@ -58,12 +58,9 @@ public class CartService : ICartService
                 CategoryId = p.Product.CategoryId,
                 CategoryName = p.Product.Category.Name,
                 IsVariant = p.Product.IsVariant,
+                VariantObjects = p.VariantObjects
             }).ToListAsync();
 
-        query.ForEach(cartItem =>
-        {
-            cartItem.Variants = cartItem.IsVariant ? cartItem.Code.Split("_").ToList() : new List<string>();
-        });
 
         var result = query.ToDictionary(
             product => product,

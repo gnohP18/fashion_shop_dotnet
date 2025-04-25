@@ -19,13 +19,13 @@
                             <a class="fs-3" asp-controller="Shop" asp-action="Detail"
                                 asp-route-id="@cartItem.Key.ProductSlug">@cartItem.Key.ProductName</a>
                             <h6>Danh mục: @cartItem.Key.CategoryName</h6>
-                            <p>@cartItem.Key.IsVariant</p>
-                            @if (cartItem.Key.IsVariant && cartItem.Key.Variants is not null && cartItem.Key.Variants.Count > 0)
+                            @if (cartItem.Key.IsVariant && cartItem.Key.VariantObjects is not null &&
+                                                cartItem.Key.VariantObjects.Count > 0)
                             {
                                 <div class="d-flex flex-row gap-1">
-                                    @foreach (var variant in cartItem.Key.Variants)
+                                    @foreach (var variant in cartItem.Key.VariantObjects)
                                     {
-                                        <button class="btn btn-small btn-black hvr-sweep-to-right rounded">@variant</button>
+                                        <button class="btn btn-small btn-black hvr-sweep-to-right rounded">@variant.Value</button>
                                     }
                                 </div>
                             }

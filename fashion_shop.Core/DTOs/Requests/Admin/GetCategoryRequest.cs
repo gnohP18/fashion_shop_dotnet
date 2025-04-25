@@ -7,6 +7,6 @@ namespace fashion_shop.Core.DTOs.Requests.Admin
 {
     public class GetCategoryRequest : QueryRequest
     {
-        public string? Name { get; set; }
+        public string? KeySearch { get; set; }
     }
 }

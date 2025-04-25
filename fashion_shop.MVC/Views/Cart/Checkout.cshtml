@@ -54,7 +54,7 @@
                             total += item.Key.Price * item.Value;
                             <tr class="product-row">
                                 <td>@item.Key.ProductName</td>
-                                <td>@string.Join(", ", item.Key.Variants)</td>
+                                <td>@string.Join(", ", item.Key.VariantObjects)</td>
                                 <td class="text-end">@item.Key.Price</td>
                                 <td class="text-end">@item.Value</td>
                                 <td class="text-end">@Function.FormatVnd(item.Key.Price* item.Value)</td>

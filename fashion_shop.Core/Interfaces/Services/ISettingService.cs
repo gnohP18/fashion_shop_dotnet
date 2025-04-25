@@ -10,4 +10,6 @@ public interface ISettingService
 {
     Task UpdateSettingAsync<T>(string prefix, T request) where T : class;
     Task<T> GetSettingAsync<T>(string prefix) where T : new();
+
+    Task SyncRedisDataAsync();
 }

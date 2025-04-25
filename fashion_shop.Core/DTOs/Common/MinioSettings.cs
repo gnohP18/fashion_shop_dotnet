@@ -12,4 +12,11 @@ public class MinioSettings
     public string AccessKey { get; set; } = String.Empty;
     public string SecretKey { get; set; } = String.Empty;
     public int ExpiredHoursPresignUrl { get; set; }
+
+    public string GetUrlImage(string s3Key, bool hasHttp = true, bool useSSL = false)
+    {
+        var str = hasHttp ? (useSSL ? "https://" : "http://") : "";
+
+        return $"{str}{Endpoint}/{BucketName}/{s3Key}";
+    }
 }

@@ -53,9 +53,29 @@ namespace fashion_shop.API.Controllers.Admin
         }
 
         [HttpGet("categories")]
-        public async Task<PaginationData<CategoryDto>> GetListCategory([FromQuery] GetCategoryRequest request)
+        public async Task<PaginationData<BasicCategoryDto>> GetListCategory([FromQuery] GetCategoryRequest request)
         {
             return await _categoryService.GetListAsync(request);
+        }
+
+        [HttpPut("categories/{id}")]
+        public async Task<IActionResult> UpdateCategory(int id, [FromBody] UpdateCategoryRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ErrorResponse<string>("Validation Failed");
+            }
+
+            var category = await _categoryService.GetDetailAsync(id);
+
+            if (category is null)
+            {
+                throw new NotFoundException($"Not found category={id}");
+            }
+
+            await _categoryService.UpdateAsync(id, request);
+
+            return NoContentResponse<string>("Update successfully");
         }
 
         [HttpDelete("categories/{id}")]
@@ -66,12 +86,22 @@ namespace fashion_shop.API.Controllers.Admin
             return NoContentResponse<string>("Deleted data successfully");
         }
 
+        [HttpGet("categories/check-exist-slug")]
+        public async Task<bool> CheckExistSLug([FromQuery] string slug)
+        {
+            var result = await _categoryService.CheckExistSlugAsync(slug);
+
+            return result;
+        }
+
         #endregion
 
         #region Basic Products
         [HttpGet("products")]
         public async Task<PaginationData<BasicProductDto>> GetProductAsync([FromQuery] GetProductRequest request)
         {
+            request.isAdmin = true;
+
             return await _productService.GetListAsync(request);
         }
 
@@ -243,6 +273,12 @@ namespace fashion_shop.API.Controllers.Admin
                 .CreatePresignedUrlAsync(request, nameof(ProductItem).ToLower(), productItem.Id);
 
             return OkResponse<string>(presignUrl, "Created successfully");
+        }
+
+        [HttpGet("products/product-items/{id}")]
+        public async Task<IActionResult> GetProductItemByProductId(int id)
+        {
+            return OkResponse<List<ProductItemDto>>(await _productItemService.GetListProductItemByProductId(id), "Get list successfully");
         }
     }
     #endregion
