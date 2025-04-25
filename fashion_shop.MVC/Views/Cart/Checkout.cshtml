@@ -54,8 +54,19 @@
                             total += item.Key.Price * item.Value;
                             <tr class="product-row">
                                 <td>@item.Key.ProductName</td>
-                                <td>@string.Join(", ", item.Key.VariantObjects)</td>
-                                <td class="text-end">@item.Key.Price</td>
+                                <td>
+                                    @if (item.Key.IsVariant && item.Key.VariantObjects is not null &&
+                                                                item.Key.VariantObjects.Count > 0)
+                                    {
+                                        <div class="d-flex flex-row gap-1">
+                                            @foreach (var variant in item.Key.VariantObjects)
+                                            {
+                                                <span>@variant.Value</span>
+                                            }
+                                        </div>
+                                    }
+                                </td>
+                                <td class="text-end">@Function.FormatVnd(item.Key.Price)</td>
                                 <td class="text-end">@item.Value</td>
                                 <td class="text-end">@Function.FormatVnd(item.Key.Price* item.Value)</td>
                             </tr>

@@ -67,7 +67,7 @@ public partial class ProductService : IProductService
             query = query.Where(p => p.Category.Slug == request.CategorySlug.ToLower());
         }
 
-        var sortByField = !string.IsNullOrEmpty(request.SortBy) ? request.SortBy : PaginationConstant.DefaultSortKey;
+        var sortByField = (request.SortBy ?? PaginationConstant.DefaultSortKey).ToLower();
 
         query = OrderByCondition(query, sortByField, request.Direction.ToUpper() == PaginationConstant.DefaultSortDirection);
 
@@ -223,7 +223,7 @@ public partial class ProductService : IProductService
         return field.ToLower() switch
         {
             "id" => isDescending ? source.OrderByDescending(p => p.Id) : source.OrderBy(p => p.Id),
-            "created_at" => isDescending ? source.OrderByDescending(p => p.CreatedAt) : source.OrderBy(p => p.CreatedAt),
+            "createdat" => isDescending ? source.OrderByDescending(p => p.CreatedAt) : source.OrderBy(p => p.CreatedAt),
             "price" => isDescending ? source.OrderByDescending(p => p.Price) : source.OrderBy(p => p.Price),
             "name" => isDescending ? source.OrderByDescending(p => p.Name) : source.OrderBy(p => p.Name),
             _ => source

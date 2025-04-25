@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using fashion_shop.Core.Entities;
 
 namespace fashion_shop.Core.DTOs.Responses.User;
 
@@ -17,5 +18,5 @@ public class OrderDetailDto
     public int Price { get; set; }
     public string? CreatedAt { get; set; }
     public string? ImageUrl { get; set; }
-    public List<string> Variants { get; set; } = new List<string>();
+    public List<VariantObject> VariantObjects { get; set; } = new List<VariantObject>();
 }

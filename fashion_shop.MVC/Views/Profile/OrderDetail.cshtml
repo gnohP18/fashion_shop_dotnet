@@ -58,25 +58,31 @@
                                     <a class="fs-6" asp-controller="Shop" asp-action="Detail"
                                         asp-route-id="@item.ProductSlug">@item.ProductName</a>
                                 </td>
-                                <td>@string.Join(", ", item.Variants)</td>
-                                <td class="text-end">@Function.FormatVnd(item.Price)</td>
-                                <td class="text-end">@item.Quantity</td>
-                                <td class="text-end">@Function.FormatVnd(item.Price * item.Quantity)</td>
-                            </tr>
-                        }
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <th colspan="4" class="text-end">Thành tiền:</th>
-                            <td class="text-end">@Function.FormatVnd(total)</td>
+                                <td>@if (item.VariantObjects.Count > 0) {
+                                    foreach (var variantObject in item.VariantObjects)
+                                    {
+                                        <span>@variantObject.Value</span>
+                                    }
+                                }
+                            </td>
+                            <td class="text-end">@Function.FormatVnd(item.Price)</td>
+                            <td class="text-end">@item.Quantity</td>
+                            <td class="text-end">@Function.FormatVnd(item.Price * item.Quantity)</td>
                         </tr>
-                        <tr>
-                            <th colspan="4" class="text-end fw-bold">Tổng cộng:</th>
-                            <td class="fw-bold text-end">@Function.FormatVnd(total)</td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
-        }
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="4" class="text-end">Thành tiền:</th>
+                        <td class="text-end">@Function.FormatVnd(total)</td>
+                    </tr>
+                    <tr>
+                        <th colspan="4" class="text-end fw-bold">Tổng cộng:</th>
+                        <td class="fw-bold text-end">@Function.FormatVnd(total)</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+                }
     </div>
 </div>
