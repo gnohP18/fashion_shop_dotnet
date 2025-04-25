@@ -54,7 +54,7 @@ public class CartService : ICartService
                 ProductSlug = p.Product.Slug,
                 Code = p.Code,
                 Price = p.Price,
-                ImageUrl = $"{_minioSettings.Endpoint}/{_minioSettings.BucketName}/{p.ImageUrl}",
+                ImageUrl = !string.IsNullOrEmpty(p.ImageUrl) ? _minioSettings.GetUrlImage(p.ImageUrl, false, false) : "",
                 CategoryId = p.Product.CategoryId,
                 CategoryName = p.Product.Category.Name,
                 IsVariant = p.Product.IsVariant,

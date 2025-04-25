@@ -224,6 +224,13 @@ namespace fashion_shop.Infrastructure.Services
                 request.Slug = product.Slug; // Giữ nguyên slug cũ
             }
 
+            if (!product.IsVariant)
+            {
+                var productItem = await _productItemRepository.Queryable.Where(i => i.ProductId == product.Id).FirstAsync();
+
+                productItem.Price = productMapper.Price;
+            }
+
             _productRepository.Update(productMapper);
             await _productRepository.UnitOfWork.SaveChangesAsync();
         }
