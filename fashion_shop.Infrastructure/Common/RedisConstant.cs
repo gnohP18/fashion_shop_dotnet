@@ -14,5 +14,7 @@ namespace fashion_shop.Infrastructure.Common
         public const uint MaxAllowUser = 1_000_000;
 
         public static RedisKey CATEGORY_LIST = "CATEGORY:slug";
+        public static RedisKey USER_USERNAME_LIST = "USER:username";
+        public static RedisKey USER_PHONE_LIST = "USER:phone";
     }
 }

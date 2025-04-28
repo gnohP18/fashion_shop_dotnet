@@ -2,6 +2,7 @@ using fashion_shop.Core.Entities;
 using fashion_shop.Core.Interfaces.Repositories;
 using fashion_shop.Core.Interfaces.Services;
 using fashion_shop.Infrastructure.Common;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
@@ -14,18 +15,20 @@ public class SettingService : ISettingService
     private readonly ICategoryRepository _categoryRepository;
     private readonly IDatabase _redis;
     private readonly ILogger _logger;
-
+    private readonly UserManager<User> _userManager;
 
     public SettingService(
         ISettingRepository settingRepository,
         ICategoryRepository categoryRepository,
         IConnectionMultiplexer connectionMultiplexer,
-        ILogger<SettingService> logger)
+        ILogger<SettingService> logger,
+        UserManager<User> userManager)
     {
         _settingRepository = settingRepository ?? throw new ArgumentNullException(nameof(settingRepository));
         _categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
         _redis = connectionMultiplexer.GetDatabase() ?? throw new ArgumentNullException(nameof(connectionMultiplexer));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
     }
 
     public async Task<T> GetSettingAsync<T>(string prefix) where T : new()
@@ -100,6 +103,7 @@ public class SettingService : ISettingService
     public async Task SyncRedisDataAsync()
     {
         await SyncCategoryAsync();
+        await SyncUserAsync();
     }
 
     private async Task SyncCategoryAsync()
@@ -116,6 +120,40 @@ public class SettingService : ISettingService
 
             _logger.LogInformation("Hashed {0} ===> {1}", slug, hashedSlug);
             await _redis.StringSetBitAsync(RedisConstant.CATEGORY_LIST, hashedSlug, true);
+        }
+    }
+
+    private async Task SyncUserAsync()
+    {
+        // Clear key
+        await _redis.KeyDeleteAsync(RedisConstant.USER_USERNAME_LIST);
+        await _redis.KeyDeleteAsync(RedisConstant.USER_PHONE_LIST);
+
+        // get all user
+        var users = await _userManager
+            .Users.Select(u => new
+            {
+                Username = u.UserName,
+                Phone = u.PhoneNumber,
+            }).ToListAsync();
+
+        foreach (var user in users)
+        {
+            if (!string.IsNullOrEmpty(user?.Username))
+            {
+                var hashedUsername = Infrastructure.Common.Function.HashStringCRC32(user?.Username ?? "");
+
+                _logger.LogInformation("Hashed {0} ===> {1}", user?.Username, hashedUsername);
+                await _redis.StringSetBitAsync(RedisConstant.USER_USERNAME_LIST, hashedUsername, true);
+            }
+
+            if (!string.IsNullOrEmpty(user?.Phone))
+            {
+                var hashedPhone = Infrastructure.Common.Function.HashStringCRC32(user?.Phone ?? "");
+
+                _logger.LogInformation("Hashed {0} ===> {1}", user?.Phone, hashedPhone);
+                await _redis.StringSetBitAsync(RedisConstant.USER_PHONE_LIST, hashedPhone, true);
+            }
         }
     }
 }

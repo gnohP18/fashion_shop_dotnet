@@ -22,5 +22,24 @@ namespace fashion_shop.API.Controllers.Admin
         {
             return await _orderService.GetListOrder(request);
         }
+
+        [HttpPost("create-by-admin")]
+        public async Task<IActionResult> CreateOrderByAdmin([FromBody] CreateOrderByAdminRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ErrorResponse<string>("Validation failed");
+            }
+
+            await _orderService.CreateOrderByAdminAsync(request);
+
+            return NoContentResponse<string>("Created successfully");
+        }
+
+        [HttpGet("get-product-options")]
+        public async Task<List<DropdownResponse>> GetProductOptions()
+        {
+            return await _orderService.GetProductOptionsAsync();
+        }
     }
 }
