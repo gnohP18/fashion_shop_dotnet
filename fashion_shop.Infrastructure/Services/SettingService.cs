@@ -50,7 +50,18 @@ public class SettingService : ISettingService
             if (setting != null && prop.CanWrite)
             {
                 var targetType = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
-                var value = Convert.ChangeType(setting.Value, targetType);
+
+                object value;
+
+                if (targetType.IsEnum)
+                {
+                    value = Enum.Parse(targetType, setting.Value);
+                }
+                else
+                {
+                    value = Convert.ChangeType(setting.Value, targetType);
+                }
+
                 prop.SetValue(result, value);
             }
         }
