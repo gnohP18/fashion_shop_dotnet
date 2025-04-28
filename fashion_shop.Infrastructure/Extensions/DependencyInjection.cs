@@ -27,6 +27,7 @@ namespace fashion_shop.Infrastructure.Extensions
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<ISettingService, SettingService>();
             services.AddScoped<IStatisticService, StatisticService>();
+            services.AddScoped<IUserManagementService, UserManagementService>();
 
             return services;
         }

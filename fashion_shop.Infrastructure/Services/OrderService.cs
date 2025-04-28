@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using fashion_shop.Core.Common;
 using fashion_shop.Core.DTOs.Common;
 using fashion_shop.Core.DTOs.Requests.Admin;
@@ -14,8 +10,11 @@ using fashion_shop.Core.Exceptions;
 using fashion_shop.Core.Interfaces.Repositories;
 using fashion_shop.Core.Interfaces.Services;
 using fashion_shop.Infrastructure.Common;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using StackExchange.Redis;
+using Order = fashion_shop.Core.Entities.Order;
 
 namespace fashion_shop.Infrastructure.Services
 {
@@ -23,16 +22,28 @@ namespace fashion_shop.Infrastructure.Services
     {
         private readonly IOrderRepository _orderRepository;
         private readonly IOrderDetailRepository _orderDetailRepository;
+        private readonly IProductRepository _productRepository;
+        private readonly IProductItemRepository _productItemRepository;
         private readonly MinioSettings _minioSettings;
+        private readonly UserManager<User> _userManager;
+        private readonly IDatabase _redis;
 
         public OrderService(
             IOrderRepository orderRepository,
             IOptions<MinioSettings> options,
-            IOrderDetailRepository orderDetailRepository)
+            IOrderDetailRepository orderDetailRepository,
+            UserManager<User> userManager,
+            IProductItemRepository productItemRepository,
+            IProductRepository productRepository,
+            IConnectionMultiplexer connectionMultiplexer)
         {
             _orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
             _orderDetailRepository = orderDetailRepository ?? throw new ArgumentNullException(nameof(orderDetailRepository));
             _minioSettings = options.Value ?? throw new ArgumentNullException(nameof(options));
+            _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+            _productItemRepository = productItemRepository ?? throw new ArgumentNullException(nameof(productItemRepository));
+            _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
+            _redis = connectionMultiplexer.GetDatabase() ?? throw new ArgumentNullException(nameof(connectionMultiplexer));
         }
 
         public async Task<PaginationData<OrderDto>> GetHistoryOrderAsync(int userId, GetHistoryOrderRequest request)
@@ -169,6 +180,125 @@ namespace fashion_shop.Infrastructure.Services
                 CreatedAt = order.CreatedAt,
                 OrderDetail = orderDetails
             };
+        }
+
+
+        public async Task CreateOrderByAdminAsync(CreateOrderByAdminRequest request)
+        {
+            // Check valid request
+            if (request.OrderDetails.Count == 0)
+            {
+                throw new BadRequestException("Empty product item");
+            }
+
+            var productItemIds = request.OrderDetails.Select(od => od.ProductItemId);
+
+            var productItems = await _productItemRepository
+                .Queryable
+                .AsNoTracking()
+                .Where(x => productItemIds.Contains(x.Id))
+                .Select(p => new
+                {
+                    Id = p.Id,
+                    ProductId = p.Product.Id,
+                    Name = p.Product.Name,
+                    Price = p.Price,
+                    CategoryId = p.Product.CategoryId,
+                }).ToListAsync();
+
+            if (productItemIds.Count() != productItems.Count())
+            {
+                throw new BadRequestException("Not found product");
+            }
+
+            var existUser = await _userManager
+                .Users
+                .Where(u => u.PhoneNumber == request.Phone)
+                .FirstOrDefaultAsync();
+
+            if (existUser is not null && request.IsGuest)
+            {
+                throw new BadRequestException($"Existed User with Phone number {request.Phone}");
+            }
+
+            var user = new User();
+
+            // create new user
+            if (request.IsGuest)
+            {
+                var now = DateTime.UtcNow.ToString("yyyyMMddHHmmssfff");
+
+                user.Email = $"{UserConstant.GuestEmail}_{now}@tempMail.com";
+                user.UserName = request.Phone;
+                user.PhoneNumber = request.Phone;
+
+                var createResult = await _userManager.CreateAsync(user, "180402");
+
+                if (createResult.Succeeded)
+                {
+                    await _userManager.AddToRoleAsync(user, "User");
+
+                    var hashedPhone = Infrastructure.Common.Function.HashStringCRC32(request.Phone ?? "");
+
+                    await _redis.StringSetBitAsync(RedisConstant.USER_PHONE_LIST, hashedPhone, true);
+                    await _redis.StringSetBitAsync(RedisConstant.USER_USERNAME_LIST, hashedPhone, true);
+                }
+                else
+                {
+                    throw new UnprocessableContentException("Created user failed");
+                }
+            }
+            else
+            {
+                user = existUser;
+            }
+
+            var orderDetails = new HashSet<OrderDetail>();
+
+            var total = 0;
+
+            foreach (var item in productItems)
+            {
+                var orderDetail = new OrderDetail()
+                {
+                    ProductItemId = item.Id,
+                    ProductId = item.ProductId,
+                    ProductName = item.Name,
+                    Price = item.Price,
+                    Quantity = request.OrderDetails
+                        .Where(od => od.ProductItemId == item.Id)
+                        .Select(pi => pi.Quantity)
+                        .First()
+                };
+
+                total += orderDetail.Price * orderDetail.Quantity;
+                orderDetails.Add(orderDetail);
+            }
+
+            // create order
+            var order = new Order()
+            {
+                UserId = user?.Id ?? 0,
+                TotalAmount = total,
+                Note = request.Note,
+                OrderDetails = orderDetails
+            };
+
+            await _orderRepository.AddAsync(order);
+            await _orderRepository.UnitOfWork.SaveChangesAsync();
+        }
+
+        public async Task<List<DropdownResponse>> GetProductOptionsAsync()
+        {
+            return await _productRepository
+                .Queryable
+                .WithoutDeleted()
+                .AsNoTracking()
+                .Select(p => new DropdownResponse
+                {
+                    Id = p.Id,
+                    Name = p.Name
+                }).ToListAsync();
         }
     }
 }

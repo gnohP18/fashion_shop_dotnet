@@ -12,5 +12,7 @@ namespace fashion_shop.Core.Interfaces.Services
         Task<OrderDto?> GetOrderAsync(int orderId);
         Task<PaginationData<OrderDto>> GetHistoryOrderAsync(int userId, GetHistoryOrderRequest request);
         Task<OrderDetailResponse> GetOrderDetailAsync(OrderDto order);
+        Task CreateOrderByAdminAsync(CreateOrderByAdminRequest request);
+        Task<List<DropdownResponse>> GetProductOptionsAsync();
     }
 }

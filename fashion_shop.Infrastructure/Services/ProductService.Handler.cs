@@ -30,7 +30,7 @@ namespace fashion_shop.Infrastructure.Services
                 IsVariant = request.IsVariant,
                 ImageUrl = request.ImageUrl,
             };
-            System.Console.WriteLine(request.IsVariant);
+
             if (request.IsVariant)
             {
                 if (request.ProductVariants.Count > 0 && request.Variants.Count > 0)
