@@ -45,6 +45,27 @@ namespace fashion_shop.API.Controllers.Admin
             return OkResponse(response, "OK");
         }
 
+        [HttpPut("statistic")]
+        public async Task<IActionResult> UpdateStatistic([FromBody] UpdateStatisticSettingRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ErrorResponse<string>("Validation failed");
+            }
+
+            await _settingService.UpdateSettingAsync<UpdateStatisticSettingRequest>(SettingPrefixConstants.StatisticPrefix, request);
+
+            return NoContentResponse<string>("Updated successfully");
+        }
+
+        [HttpGet("statistic")]
+        public async Task<ActionResult<string>> GetStatistic()
+        {
+            var response = await _settingService.GetSettingAsync<StatisticSettingResponse>(SettingPrefixConstants.StatisticPrefix);
+
+            return OkResponse(response, "OK");
+        }
+
         [HttpGet("sync-redis")]
         public async Task<ActionResult<string>> SyncRedis()
         {
