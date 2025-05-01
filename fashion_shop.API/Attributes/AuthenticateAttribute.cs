@@ -9,7 +9,7 @@ using StackExchange.Redis;
 namespace fashion_shop.API.Attributes
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
-    public class AuthenticateAttribute : Attribute, IAsyncAuthorizationFilter
+    public class AuthenticateAttribute(params string[] roles) : Attribute, IAsyncAuthorizationFilter
     {
         public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
         {
@@ -22,7 +22,7 @@ namespace fashion_shop.API.Attributes
 
             try
             {
-                await service.CheckAuthentication(context);
+                await service.CheckAuthentication(context, roles);
             }
             catch (UnAuthorizedException)
             {
@@ -32,7 +32,7 @@ namespace fashion_shop.API.Attributes
 
         public interface IAuthenticationFilterService
         {
-            Task CheckAuthentication(AuthorizationFilterContext context);
+            Task CheckAuthentication(AuthorizationFilterContext context, string[] roles);
         }
 
         internal class AuthenticationFilterService : IAuthenticationFilterService
@@ -48,7 +48,7 @@ namespace fashion_shop.API.Attributes
                 _redis = connectionMultiplexer.GetDatabase();
             }
 
-            public async Task CheckAuthentication(AuthorizationFilterContext context)
+            public async Task CheckAuthentication(AuthorizationFilterContext context, string[] roles)
             {
                 context.HttpContext.Request.Headers.TryGetValue("Authorization", out var tokenValues);
                 var token = tokenValues.FirstOrDefault();
@@ -69,11 +69,19 @@ namespace fashion_shop.API.Attributes
 
                 var jti = claim.FindFirstValue(JwtRegisteredClaimNames.Jti);
 
+                var role = claim.FindFirstValue(ClaimTypes.Role) ?? claim.FindFirstValue("role");
+
+                if (roles.Count() > 0 && (string.IsNullOrEmpty(role) || !roles.Contains(role)))
+                {
+                    throw new ForbiddenException("Permission denied");
+                }
+
                 // check token blacklist
                 if (await _redis.KeyExistsAsync($"{AuthConstant.ACCESS_TOKEN_BLACK_LIST}_{jti}_{userId}"))
                 {
                     throw new UnAuthorizedException("Token Revoked");
                 }
+
                 // Remove header
                 RemoveHeader(context.HttpContext.Request);
 

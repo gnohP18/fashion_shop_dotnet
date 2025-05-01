@@ -15,7 +15,7 @@ namespace fashion_shop.Core.Interfaces.Services
         /// </summary>
         /// <param name="user">User Login/Register</param>
         /// <returns>string</returns>
-        string GenerateToken(User user, string jti);
+        Task<string> GenerateToken(User user, string jti);
 
         /// <summary>
         /// Validate token => Basic validation handle

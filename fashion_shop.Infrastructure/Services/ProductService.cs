@@ -83,7 +83,7 @@ public partial class ProductService : IProductService
                 Slug = p.Slug,
                 Price = p.Price,
                 ImageUrl = !string.IsNullOrWhiteSpace(p.ImageUrl) ?
-                    _minioSettings.GetUrlImage(p.ImageUrl, request.isAdmin, false) : ProductConstant.DefaultImage600,
+                    _minioSettings.GetUrlImage(p.ImageUrl, request.isAdmin, false) : null,
                 CategoryId = p.CategoryId,
                 CategoryName = p.Category.Name,
                 IsVariant = p.IsVariant
@@ -107,7 +107,7 @@ public partial class ProductService : IProductService
                 Slug = p.Slug,
                 Price = p.Price,
                 ImageUrl = !string.IsNullOrWhiteSpace(p.ImageUrl)
-                    ? _minioSettings.GetUrlImage(p.ImageUrl, true, false) : ProductConstant.DefaultImage600,
+                    ? _minioSettings.GetUrlImage(p.ImageUrl, true, false) : null,
                 CategoryId = p.CategoryId,
                 CategoryName = p.Category.Name,
                 IsVariant = p.IsVariant,
@@ -142,7 +142,7 @@ public partial class ProductService : IProductService
                     Price = i.Price,
                     Quantity = i.Quantity,
                     ImageUrl = !string.IsNullOrEmpty(i.ImageUrl) ?
-                        _minioSettings.GetUrlImage(i.ImageUrl, true, false) : ProductConstant.DefaultImage600,
+                        _minioSettings.GetUrlImage(i.ImageUrl, true, false) : null,
                 }).ToList()
             }).FirstOrDefaultAsync(p => p.Id == id);
 

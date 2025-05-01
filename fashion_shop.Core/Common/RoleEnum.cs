@@ -11,3 +11,10 @@ public enum RoleEnum
     [Display(Name = "User")]
     User,
 }
+
+public class RoleContants
+{
+    public const string Admin = "Admin";
+    public const string Manager = "Manager";
+    public const string User = "User";
+}

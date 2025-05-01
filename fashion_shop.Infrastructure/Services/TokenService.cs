@@ -12,20 +12,27 @@ using fashion_shop.Core.Interfaces.Services;
 using fashion_shop.Core.Exceptions;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Identity;
 
 namespace fashion_shop.Infrastructure.Services
 {
     public class TokenService : ITokenService
     {
         private readonly TokenSettings _tokenSettings;
+        private readonly UserManager<User> _userManager;
 
-        public TokenService(IOptions<TokenSettings> tokenSettings)
+        public TokenService(
+            IOptions<TokenSettings> tokenSettings,
+            UserManager<User> userManager)
         {
             _tokenSettings = tokenSettings.Value ?? throw new ArgumentNullException(nameof(tokenSettings.Value));
+            _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         }
 
-        public string GenerateToken(User user, string jti)
+        public async Task<string> GenerateToken(User user, string jti)
         {
+            var roles = await _userManager.GetRolesAsync(user);
+
             var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_tokenSettings.Key));
 
             var signinCredentials = new SigningCredentials(secretKey, _tokenSettings.SigninCredentials);
@@ -34,6 +41,7 @@ namespace fashion_shop.Infrastructure.Services
             {
                 new Claim("userId", user.Id.ToString()),
                 new Claim("username", user.UserName ?? ""),
+                new Claim(ClaimTypes.Role, string.Join("|", roles)),
                 new Claim(JwtRegisteredClaimNames.Jti, jti)
             };
 
