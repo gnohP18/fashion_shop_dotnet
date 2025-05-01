@@ -60,7 +60,7 @@ namespace fashion_shop.Infrastructure.Services
 
             var roles = await _userManager.GetRolesAsync(user);
 
-            if (!roles.Any(r => r.ToString() == RoleEnum.Admin.GetDisplayName()))
+            if (!roles.Any(r => r.ToString() == RoleEnum.Admin.GetDisplayName() || r.ToString() == RoleEnum.Manager.GetDisplayName()))
             {
                 throw new ForbiddenException("You are not authorized to access the admin panel");
             }
@@ -74,7 +74,7 @@ namespace fashion_shop.Infrastructure.Services
 
             var jti = Guid.NewGuid().ToString();
 
-            var accessToken = _tokenService.GenerateToken(user, jti);
+            var accessToken = await _tokenService.GenerateToken(user, jti);
 
             var refreshToken = _tokenService.GenerateRefreshToken(user, jti);
 
@@ -144,7 +144,7 @@ namespace fashion_shop.Infrastructure.Services
 
             var newJti = Guid.NewGuid().ToString();
 
-            var accessToken = _tokenService.GenerateToken(user, newJti);
+            var accessToken = await _tokenService.GenerateToken(user, newJti);
 
             var refreshToken = _tokenService.GenerateRefreshToken(user, newJti);
 

@@ -10,6 +10,7 @@ using fashion_shop.Core.Interfaces.Services;
 using fashion_shop.Core.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using fashion_shop.API.Attributes;
+using Microsoft.AspNetCore.Identity;
 
 namespace fashion_shop.API.Controllers.Admin
 {
@@ -29,7 +30,9 @@ namespace fashion_shop.API.Controllers.Admin
             ICategoryService categoryService,
             IProductService productService,
             IMediaFileService mediaFileService,
-            IProductItemService productItemService) : base(logger)
+            IProductItemService productItemService,
+            IHttpContextAccessor httpContextAccessor,
+            UserManager<User> userManager) : base(logger, httpContextAccessor, userManager)
         {
             _categoryService = categoryService ?? throw new ArgumentNullException(nameof(categoryService));
             _productService = productService ?? throw new ArgumentNullException(nameof(productService));

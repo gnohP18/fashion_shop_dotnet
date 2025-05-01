@@ -98,6 +98,10 @@ public class CategoryService : ICategoryService
         await _categoryRepository.AddAsync(category);
         await _categoryRepository.UnitOfWork.SaveChangesAsync();
 
+        var slugHashed = Infrastructure.Common.Function.HashStringCRC32(category.Slug);
+
+        await _redis.StringSetBitAsync(RedisConstant.CATEGORY_LIST, slugHashed, true);
+
         return _mapper.Map<CreateCategoryResponse>(category);
     }
 

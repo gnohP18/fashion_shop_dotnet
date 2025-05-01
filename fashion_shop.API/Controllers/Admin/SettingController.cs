@@ -2,15 +2,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using fashion_shop.API.Attributes;
 using fashion_shop.Core.Common;
 using fashion_shop.Core.DTOs.Requests.Admin;
 using fashion_shop.Core.DTOs.Responses.User;
+using fashion_shop.Core.Entities;
 using fashion_shop.Core.Interfaces.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace fashion_shop.API.Controllers.Admin
 {
     [ApiController]
+    [Authenticate]
     [Tags("Settings")]
     [Route("api/settings")]
     public class SettingController : APIController<SettingController>
@@ -19,7 +23,9 @@ namespace fashion_shop.API.Controllers.Admin
 
         public SettingController(
             ILogger<SettingController> logger,
-            ISettingService settingService) : base(logger)
+            ISettingService settingService,
+            IHttpContextAccessor httpContextAccessor,
+            UserManager<User> userManager) : base(logger, httpContextAccessor, userManager)
         {
             _settingService = settingService ?? throw new ArgumentNullException(nameof(settingService));
         }

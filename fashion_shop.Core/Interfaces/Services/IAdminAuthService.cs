@@ -1,6 +1,7 @@
 using fashion_shop.Core.DTOs;
 using fashion_shop.Core.DTOs.Requests.Admin;
 using fashion_shop.Core.DTOs.Responses.Admin;
+using fashion_shop.Core.Entities;
 
 namespace fashion_shop.Core.Interfaces.Services;
 

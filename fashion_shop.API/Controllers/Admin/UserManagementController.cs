@@ -3,13 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using fashion_shop.Core.DTOs.Responses.Admin;
+using fashion_shop.Core.Entities;
 using fashion_shop.Core.Exceptions;
 using fashion_shop.Core.Interfaces.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace fashion_shop.API.Controllers.Admin
 {
     [ApiController]
+    [Tags("User Management")]
     [Route("api/user-management")]
     public class UserManagementController : APIController<UserManagementController>
     {
@@ -17,7 +20,9 @@ namespace fashion_shop.API.Controllers.Admin
 
         public UserManagementController(
             ILogger<UserManagementController> logger,
-            IUserManagementService userManagementService) : base(logger)
+            IUserManagementService userManagementService,
+            IHttpContextAccessor httpContextAccessor,
+            UserManager<User> userManager) : base(logger, httpContextAccessor, userManager)
         {
             _userManagementService = userManagementService ?? throw new ArgumentNullException(nameof(userManagementService));
         }

@@ -20,20 +20,16 @@ namespace fashion_shop.API.Controllers.Admin
     {
         private readonly IAdminAuthService _adminAuthService;
         private readonly ITokenService _tokenService;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly UserManager<User> _userManager;
 
         public AuthController(
             IAdminAuthService adminAuthService,
             IHttpContextAccessor httpContextAccessor,
             ITokenService tokenService,
             ILogger<AuthController> logger,
-            UserManager<User> userManager) : base(logger)
+            UserManager<User> userManager) : base(logger, httpContextAccessor, userManager)
         {
             _adminAuthService = adminAuthService ?? throw new ArgumentNullException(nameof(adminAuthService));
-            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             _tokenService = tokenService ?? throw new ArgumentNullException(nameof(tokenService));
-            _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         }
 
         [HttpPost("login")]
@@ -119,6 +115,5 @@ namespace fashion_shop.API.Controllers.Admin
 
             return OkResponse<string>(string.Empty, $"Created user with username={request.Username} password={request.Password} successfully");
         }
-
     }
 }

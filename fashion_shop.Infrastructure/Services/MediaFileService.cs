@@ -9,6 +9,7 @@ using fashion_shop.Core.Exceptions;
 using fashion_shop.Core.Interfaces.Repositories;
 using fashion_shop.Core.Interfaces.Services;
 using fashion_shop.Infrastructure.Common;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Minio;
@@ -25,19 +26,22 @@ namespace fashion_shop.Infrastructure.Services
         private readonly IMediaFileRepository _mediaFileRepository;
         private readonly IProductRepository _productRepository;
         private readonly IProductItemRepository _productItemRepository;
+        private readonly UserManager<User> _userManager;
 
         public MediaFileService(
             IOptions<MinioSettings> options,
             IMinioClient minioClient,
             IMediaFileRepository mediaFileRepository,
             IProductRepository productRepository,
-            IProductItemRepository productItemRepository)
+            IProductItemRepository productItemRepository,
+            UserManager<User> userManager)
         {
             _minio = options.Value ?? throw new ArgumentNullException(nameof(options));
             _minioClient = minioClient ?? throw new ArgumentNullException(nameof(minioClient));
             _mediaFileRepository = mediaFileRepository ?? throw new ArgumentNullException(nameof(mediaFileRepository));
             _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
             _productItemRepository = productItemRepository ?? throw new ArgumentNullException(nameof(productItemRepository));
+            _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         }
 
         public async Task<string> CreatePresignedUrlAsync(CreatePresignedUrlRequest request, string objectType, int objectId)
@@ -162,6 +166,7 @@ namespace fashion_shop.Infrastructure.Services
 
         private async Task UpdateImageUrl(string objectType, int objectId, string imageUrl)
         {
+            System.Console.WriteLine(objectType);
             switch (objectType)
             {
                 case "product":
@@ -193,6 +198,19 @@ namespace fashion_shop.Infrastructure.Services
 
                     productItem.ImageUrl = imageUrl;
                     _productItemRepository.Update(productItem);
+
+                    break;
+
+                case "user":
+                    var user = await _userManager.FindByIdAsync(objectId.ToString());
+
+                    if (user is null)
+                    {
+                        throw new NotFoundException($"Not Found User Id={objectId}");
+                    }
+
+                    user.ImageUrl = imageUrl;
+                    await _userManager.UpdateAsync(user);
 
                     break;
                 default:
