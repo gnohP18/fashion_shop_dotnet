@@ -4,6 +4,10 @@ using fashion_shop.Core.Interfaces.Services;
 using fashion_shop.Infrastructure.Database;
 using fashion_shop.Infrastructure.Repositories;
 using fashion_shop.Infrastructure.Services;
+using Firebase.Database;
+using FirebaseAdmin;
+using FirebaseAdmin.Messaging;
+using Google.Apis.Auth.OAuth2;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,6 +33,8 @@ namespace fashion_shop.Infrastructure.Extensions
             services.AddScoped<IStatisticService, StatisticService>();
             services.AddScoped<IUserManagementService, UserManagementService>();
             services.AddScoped<IPersonalProfileService, PersonalProfileService>();
+            services.AddScoped<INotificationService, NotificationService>();
+            services.AddScoped<ICurrenUserContext, CurrentUserContext>();
 
             return services;
         }
@@ -71,6 +77,22 @@ namespace fashion_shop.Infrastructure.Extensions
                     .WithSSL(false)
                     .Build();
             });
+
+            services.AddSingleton<FirebaseClient>(resolver =>
+            {
+                var config = resolver.GetRequiredService<IOptions<FirebaseSettings>>().Value;
+
+                return new FirebaseClient(config.DefaultConnection);
+            }
+            );
+
+            FirebaseApp.Create(new AppOptions
+            {
+                Credential = GoogleCredential.FromFile("Firebase/firebase-adminsdk.json"),
+                ProjectId = "pbl5-5c533",
+            });
+
+            services.AddSingleton(FirebaseMessaging.DefaultInstance);
 
             return services;
         }

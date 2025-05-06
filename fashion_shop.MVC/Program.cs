@@ -7,6 +7,10 @@ using fashion_shop.Core.DTOs.Common;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
+
+//------------------------------ Firebase ----------------------------------//
+services.Configure<FirebaseSettings>(builder.Configuration.GetSection("FirebaseDatabase"));
+
 //------------------------------ Service & Repo & Infra ----------------------------------//
 services.AddInfrastructure(builder.Configuration);
 services.AddServices();

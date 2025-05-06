@@ -31,7 +31,6 @@ namespace fashion_shop.Infrastructure.Services
         private readonly UserManager<User> _userManager;
         private readonly TokenSettings _tokenSettings;
 
-
         public AdminAuthService(
             ILogger<AdminAuthService> logger,
             IConnectionMultiplexer connectionMultiplexer,
@@ -78,7 +77,12 @@ namespace fashion_shop.Infrastructure.Services
 
             var refreshToken = _tokenService.GenerateRefreshToken(user, jti);
 
-            // AddRefreshTokenCookie(refreshToken);
+            // Set Fcm token device
+            if (!string.IsNullOrEmpty(request.FcmToken))
+            {
+                var fcmRedisKey = $"{AuthConstant.FCM_TOKEN_LIST}_{jti}";
+                await _redis.StringSetAsync(fcmRedisKey, request.FcmToken);
+            }
 
             _logger.LogInformation("End LoginAsync");
 
@@ -96,6 +100,9 @@ namespace fashion_shop.Infrastructure.Services
 
             // Revoke token
             await _redis.StringSetAsync(key, 1);
+
+            var fcmRedisKey = $"{AuthConstant.FCM_TOKEN_LIST}_{jti}";
+            await _redis.KeyDeleteAsync(fcmRedisKey);
 
             return new BaseResponse<string>
             {

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using fashion_shop.API.ExternalService.Entities;
 using fashion_shop.Core.Common;
 
 namespace fashion_shop.Core.Entities;
