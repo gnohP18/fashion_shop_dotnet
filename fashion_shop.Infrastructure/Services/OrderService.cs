@@ -1,3 +1,4 @@
+using fashion_shop.API.ExternalService.Entities;
 using fashion_shop.Core.Common;
 using fashion_shop.Core.DTOs.Common;
 using fashion_shop.Core.DTOs.Requests.Admin;
@@ -10,6 +11,9 @@ using fashion_shop.Core.Exceptions;
 using fashion_shop.Core.Interfaces.Repositories;
 using fashion_shop.Core.Interfaces.Services;
 using fashion_shop.Infrastructure.Common;
+using Firebase.Database;
+using Firebase.Database.Query;
+using FirebaseAdmin.Messaging;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -27,6 +31,10 @@ namespace fashion_shop.Infrastructure.Services
         private readonly MinioSettings _minioSettings;
         private readonly UserManager<User> _userManager;
         private readonly IDatabase _redis;
+        private readonly FirebaseClient _firebaseClient;
+        private readonly FirebaseMessaging _messaging;
+        private readonly ICurrenUserContext _currenUserContext;
+
 
         public OrderService(
             IOrderRepository orderRepository,
@@ -35,7 +43,10 @@ namespace fashion_shop.Infrastructure.Services
             UserManager<User> userManager,
             IProductItemRepository productItemRepository,
             IProductRepository productRepository,
-            IConnectionMultiplexer connectionMultiplexer)
+            IConnectionMultiplexer connectionMultiplexer,
+            FirebaseMessaging messaging,
+            IOptions<FirebaseSettings> optionsFirebase,
+            ICurrenUserContext currenUserContext)
         {
             _orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
             _orderDetailRepository = orderDetailRepository ?? throw new ArgumentNullException(nameof(orderDetailRepository));
@@ -44,6 +55,9 @@ namespace fashion_shop.Infrastructure.Services
             _productItemRepository = productItemRepository ?? throw new ArgumentNullException(nameof(productItemRepository));
             _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
             _redis = connectionMultiplexer.GetDatabase() ?? throw new ArgumentNullException(nameof(connectionMultiplexer));
+            _messaging = messaging ?? throw new ArgumentNullException(nameof(messaging));
+            _firebaseClient = new FirebaseClient(optionsFirebase.Value.DefaultConnection) ?? throw new ArgumentNullException(nameof(optionsFirebase.Value));
+            _currenUserContext = currenUserContext ?? throw new ArgumentNullException(nameof(optionsFirebase.Value));
         }
 
         public async Task<PaginationData<OrderDto>> GetHistoryOrderAsync(int userId, GetHistoryOrderRequest request)
@@ -286,6 +300,35 @@ namespace fashion_shop.Infrastructure.Services
 
             await _orderRepository.AddAsync(order);
             await _orderRepository.UnitOfWork.SaveChangesAsync();
+
+            var message = new AdminMessage
+            {
+                Title = "Đơn hàng mới",
+                Body = $"Đơn hàng mới trị giá {order.TotalAmount}đ vừa được tạo",
+                IsRead = false,
+                RedirectUrl = $"http://localhost:3000/order/{order.Id}",
+                CreatedAt = order.CreatedAt,
+                SenderId = Int32.Parse(_currenUserContext.UserId ?? "1"),
+                ReceiverId = order.UserId
+            };
+
+            await _firebaseClient
+                .Child("notifications")
+                .Child(_currenUserContext.UserId)
+                .PostAsync(message);
+
+            if (!string.IsNullOrEmpty(_currenUserContext.FcmToken))
+            {
+                await _messaging.SendAsync(new Message()
+                {
+                    Token = _currenUserContext.FcmToken,
+                    Notification = new Notification
+                    {
+                        Title = $"Đơn hàng mới vừa được tạo",
+                        Body = "Vui lòng kiểm tra"
+                    }
+                });
+            }
         }
 
         public async Task<List<DropdownResponse>> GetProductOptionsAsync()

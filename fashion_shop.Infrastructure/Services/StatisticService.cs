@@ -47,7 +47,7 @@ public class StatisticService : IStatisticService
 
         if (request.ToDate is not null)
         {
-            var toDateOffset = new DateTimeOffset(request.ToDate.Value, TimeSpan.Zero);
+            var toDateOffset = new DateTimeOffset(request.ToDate.Value, TimeSpan.Zero).AddDays(1);
             query = query.Where(od => od.CreatedAt <= toDateOffset);
         }
 

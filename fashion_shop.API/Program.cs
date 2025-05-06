@@ -7,8 +7,6 @@ using fashion_shop.Infrastructure.Database;
 using fashion_shop.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using Minio;
 using SampleDotNet.Api.Middlewares;
 using static fashion_shop.API.Attributes.AuthenticateAttribute;
 
@@ -24,6 +22,9 @@ services.AddControllers().AddJsonOptions(options =>
         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
     }
 );
+
+//------------------------------ Firebase ----------------------------------//
+services.Configure<FirebaseSettings>(builder.Configuration.GetSection("FirebaseDatabase"));
 
 //------------------------------ Service & Repo & Infra ----------------------------------//
 services.AddScoped<IAuthenticationFilterService, AuthenticationFilterService>();
