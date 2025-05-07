@@ -175,8 +175,9 @@ public class CartService : ICartService
     private async Task SendMessageToAdmin(AdminMessage tempMessage)
     {
         var admins = await _userManager.GetUsersInRoleAsync("Admin");
+        var manager = await _userManager.GetUsersInRoleAsync("Manager");
 
-        foreach (var admin in admins)
+        foreach (var admin in admins.Concat(manager))
         {
             var newMessgae = tempMessage;
 

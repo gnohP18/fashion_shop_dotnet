@@ -1,7 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using fashion_shop.API.Attributes;
+using fashion_shop.Core.DTOs.Requests.Admin;
+using fashion_shop.Core.DTOs.Responses;
 using fashion_shop.Core.DTOs.Responses.Admin;
 using fashion_shop.Core.Entities;
 using fashion_shop.Core.Exceptions;
@@ -50,6 +49,13 @@ namespace fashion_shop.API.Controllers.Admin
             }
 
             return OkResponse<UserForOrderResponse>(data, "Get data successfully");
+        }
+
+        [HttpGet("")]
+        [Authenticate]
+        public async Task<IActionResult> GetAsync([FromQuery] GetListUserRequest request)
+        {
+            return OkResponse<PaginationData<BasicUserResponse>>(await _userManagementService.GetListUserAsync(request), "Get List User successfully");
         }
     }
 }
