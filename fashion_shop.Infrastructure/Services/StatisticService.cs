@@ -115,11 +115,6 @@ public class StatisticService : IStatisticService
             .OrderBy(x => x.Key)
             .ToList();
 
-        foreach (var item in grouped)
-        {
-            System.Console.WriteLine(item.TotalItem);
-        }
-
         // 3. Tạo danh sách thời gian đầy đủ (kể cả ngày không có đơn)
         List<DateTime> dateRange = new();
         var tempDate = GetGroupKey(fromDate, request.Mode);

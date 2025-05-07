@@ -1,3 +1,4 @@
+using fashion_shop.Core.Common;
 using fashion_shop.Core.Entities;
 using fashion_shop.Core.Interfaces.Repositories;
 using fashion_shop.Core.Interfaces.Services;
@@ -16,26 +17,36 @@ public class SettingService : ISettingService
     private readonly IDatabase _redis;
     private readonly ILogger _logger;
     private readonly UserManager<User> _userManager;
+    private readonly ICurrenUserContext _currenUserContext;
 
     public SettingService(
         ISettingRepository settingRepository,
         ICategoryRepository categoryRepository,
         IConnectionMultiplexer connectionMultiplexer,
         ILogger<SettingService> logger,
-        UserManager<User> userManager)
+        UserManager<User> userManager,
+        ICurrenUserContext currenUserContext)
     {
         _settingRepository = settingRepository ?? throw new ArgumentNullException(nameof(settingRepository));
         _categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
         _redis = connectionMultiplexer.GetDatabase() ?? throw new ArgumentNullException(nameof(connectionMultiplexer));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+        _currenUserContext = currenUserContext ?? throw new ArgumentNullException(nameof(currenUserContext));
     }
 
     public async Task<T> GetSettingAsync<T>(string prefix) where T : new()
     {
         var props = typeof(T).GetProperties();
 
-        var keys = props.Select(p => $"{prefix}_{p.Name.ToLower()}").ToList();
+        var userId = string.Empty;
+
+        if (!IsSystemSetting(prefix))
+        {
+            userId = string.IsNullOrEmpty(_currenUserContext.UserId) ? string.Empty : $"{_currenUserContext.UserId}_";
+        }
+
+        var keys = props.Select(p => $"{prefix}_{userId}{p.Name.ToLower()}").ToList();
 
         var settings = await _settingRepository
             .Queryable
@@ -47,7 +58,8 @@ public class SettingService : ISettingService
 
         foreach (var prop in props)
         {
-            var key = $"{prefix}_{prop.Name.ToLower()}";
+            var key = $"{prefix}_{userId}{prop.Name.ToLower()}";
+
             var setting = settings.FirstOrDefault(s => s.Name == key);
 
             if (setting != null && prop.CanWrite)
@@ -91,11 +103,18 @@ public class SettingService : ISettingService
 
     private List<Setting> MapToSettings<T>(string prefix, T request) where T : class
     {
+        var userId = string.Empty;
+
+        if (!IsSystemSetting(prefix))
+        {
+            userId = string.IsNullOrEmpty(_currenUserContext.UserId) ? string.Empty : $"{_currenUserContext.UserId}_";
+        }
+
         return typeof(T)
             .GetProperties()
             .Select(p => new Setting
             {
-                Name = $"{prefix}_{p.Name.ToLower()}",
+                Name = $"{prefix}_{userId}{p.Name.ToLower()}",
                 Value = p.GetValue(request)?.ToString() ?? string.Empty
             }).ToList();
     }
@@ -155,5 +174,15 @@ public class SettingService : ISettingService
                 await _redis.StringSetBitAsync(RedisConstant.USER_PHONE_LIST, hashedPhone, true);
             }
         }
+    }
+
+    private bool IsSystemSetting(string prefix)
+    {
+        var systemSettingPrefix = new List<string> {
+            SettingPrefixConstants.BasicInfoPrefix,
+            SettingPrefixConstants.PaymentInfoPrefix
+        };
+
+        return systemSettingPrefix.Contains(prefix);
     }
 }

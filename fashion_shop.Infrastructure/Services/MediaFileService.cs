@@ -141,7 +141,6 @@ namespace fashion_shop.Infrastructure.Services
 
             if (mediaFile.S3Key is not null)
             {
-                System.Console.WriteLine(mediaFile.S3Key);
                 await UpdateImageUrl(mediaFile.ObjectType, mediaFile.ObjectId, mediaFile.S3Key);
             }
 
@@ -166,7 +165,6 @@ namespace fashion_shop.Infrastructure.Services
 
         private async Task UpdateImageUrl(string objectType, int objectId, string imageUrl)
         {
-            System.Console.WriteLine(objectType);
             switch (objectType)
             {
                 case "product":

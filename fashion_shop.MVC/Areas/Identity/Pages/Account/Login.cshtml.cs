@@ -113,18 +113,8 @@ namespace fashion_shop.MVC.Areas.Identity.Pages.Account
             {
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                var allUsers = _userManager.Users.ToList();
-                foreach (var user in allUsers)
-                {
-                    Console.WriteLine($"User: {user.UserName}, Email: {user.Email}");
-                }
-
-                var test = await _signInManager.PasswordSignInAsync("admin", Input.Password, Input.RememberMe, lockoutOnFailure: false);
-                Console.WriteLine($"{test.Succeeded}");
-
 
                 var result = await _signInManager.PasswordSignInAsync(Input.Username, Input.Password, Input.RememberMe, lockoutOnFailure: false);
-                System.Console.WriteLine("{0} {1} {2}", Input.Username, Input.Password, result);
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
